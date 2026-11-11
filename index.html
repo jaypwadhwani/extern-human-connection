@@ -1,0 +1,1129 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Human Connection Prototypes</title><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* Layout: a thin prototype toolbar over a stage that renders the real product screens at desktop or phone width. */
+:root{
+  --bg:#f3f1f5; --fg:#1c1b1b; --fg-2:#484646; --panel:#ffffff; --line:#e3e1e6; --accent:#2853d2; --accent-soft:#dce1ff;
+  --font-ui:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* Extern product tokens (from globals.css). The stage is always light because it renders the product. */
+  --x-bg:#ffffff; --x-surface:#fdf8f8; --x-surface-container:#f4f0ef; --x-neutral:#f2f2f2; --x-on:#1c1b1b; --x-on-subtle:#484646; --x-muted:#797676;
+  --x-outline:#939090; --x-outline-subtle:#c9c6c5; --x-divider:#e5e2e1; --x-gray-medium:#e3e3e3; --x-gray-light:#f2f2f2;
+  --x-info:#2853d2; --x-info-container:#dce1ff; --x-blue-light:#dfe9fc; --x-blue-dark:#2550d0;
+  --x-success:#006e20; --x-success-container:#c8ffc1; --x-green-light:#ecfdf1; --x-green-medium:#b5f7c9;
+  --x-secondary-container:#ddd0dd; --x-pink-container:#fdcfe1; --x-purple-medium:#d3caf6; --x-error:#ba1a1a; --x-error-container:#ffdad6;
+  --x-plum:#3b1f4a;
+  --x-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#17161a; --fg:#f1eff4; --fg-2:#b6b2bd; --panel:#201f24; --line:#34323a; --accent:#8da4ff; --accent-soft:#2a3560; color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#17161a; --fg:#f1eff4; --fg-2:#b6b2bd; --panel:#201f24; --line:#34323a; --accent:#8da4ff; --accent-soft:#2a3560; color-scheme:dark }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-ui);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--x-info);outline-offset:2px}
+.stage :focus-visible{outline:2px solid #2853d2;outline-offset:2px}
+
+/* ---------- prototype toolbar ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--panel);border-bottom:1px solid var(--line);padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--panel)}
+.bar h1{font-size:13px;font-weight:600;margin:0;letter-spacing:.01em;white-space:nowrap}
+.bar h1 span{color:var(--fg-2);font-weight:500}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{border:0;background:transparent;color:var(--fg-2);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--fg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--bg)}
+.seg button{border:0;background:transparent;color:var(--fg-2);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.bar .right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--fg);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer}
+@media (max-width:700px){ .seg.device{display:none} }
+
+/* ---------- stage + notes ---------- */
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1800px;margin:0 auto}
+@media (max-width:1100px){ .wrap{grid-template-columns:minmax(0,1fr)} }
+.stagewrap{min-width:0;display:flex;justify-content:center;align-items:flex-start}
+.stage{position:relative;width:100%;max-width:1440px;background:#fff;color:#1c1b1b;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px var(--line);container:stage / inline-size;font-family:var(--font-ui);font-size:14px;line-height:1.45;transform:translateZ(0);min-height:900px;display:flex;flex-direction:column}
+.stage.phone{width:390px;max-width:100%;height:844px;min-height:0;border-radius:36px;box-shadow:0 0 0 10px #1c1b1b,0 0 0 11px #3a3838,0 30px 60px rgba(0,0,0,.25);overflow:auto;scrollbar-width:none}
+.stage.phone::-webkit-scrollbar{display:none}
+@media (max-width:700px){ .stage{min-height:0;height:calc(100dvh - 120px)} }
+.notes{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;position:sticky;top:64px;max-height:calc(100dvh - 90px);overflow:auto;font-size:13px}
+.notes h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2);margin:0 0 6px;font-weight:600}
+.notes h3{font-size:14px;margin:0 0 6px}
+.notes p{margin:0 0 10px;color:var(--fg)}
+.notes ul{margin:0 0 10px;padding-left:18px}
+.notes li{margin-bottom:4px}
+.notes .log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;display:flex;flex-direction:column;gap:3px}
+.notes .log div{display:flex;gap:8px;align-items:baseline}
+.notes .log time{color:var(--fg-2);flex:none;font-variant-numeric:tabular-nums}
+.notes .log b{font-weight:600;color:var(--accent)}
+.notes .log i{font-style:normal;color:var(--fg-2)}
+.notes .empty{color:var(--fg-2)}
+
+/* ---------- Extern product chrome ---------- */
+.x-top{height:64px;border-bottom:1px solid var(--x-divider);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#fff;flex:none}
+.x-top .mark{font-family:var(--x-serif);font-size:26px;letter-spacing:-.01em;color:#1c1b1b;position:absolute;left:50%;transform:translateX(-50%)}
+.x-top .ic{width:24px;height:24px;color:#1c1b1b}
+.x-body{flex:1;background:var(--x-surface);position:relative}
+.tw > *,.task,.footbar,.sticky{flex-shrink:0}
+.x-pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 20px;border-radius:999px;font-weight:500;font-size:14px;border:1px solid transparent;cursor:pointer;white-space:nowrap;text-decoration:none;line-height:1}
+.x-pill.dark{background:#1c1b1b;color:#fff}
+.x-pill.dark:hover{background:#333}
+.x-pill.blue{background:var(--x-info);color:#fff}
+.x-pill.blue:hover{background:#1d3fa6}
+.x-pill.out{background:#fff;color:#1c1b1b;border-color:var(--x-outline-subtle)}
+.x-pill.out:hover{background:var(--x-gray-light)}
+.x-pill.err{background:#ba1a1a;color:#fff}
+.x-pill:disabled{background:var(--x-divider);color:#adaaaa;cursor:not-allowed;border-color:transparent}
+.x-pill.sm{height:36px;padding:0 16px;font-size:13px}
+.x-link{background:none;border:0;padding:0;color:var(--x-info);text-decoration:underline;cursor:pointer;font:inherit}
+.x-link.quiet{color:var(--x-on-subtle)}
+.x-card{background:#fff;border:1px solid var(--x-divider);border-radius:16px}
+.x-input{width:100%;height:48px;border:1px solid var(--x-outline-subtle);border-radius:999px;padding:0 18px;font:inherit;font-size:15px;color:#1c1b1b;background:#fff}
+.x-input:focus{border-color:#aa99ec;outline:none;box-shadow:0 0 0 1px #c4b8f3}
+.x-ta{width:100%;border:1px solid var(--x-outline-subtle);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;line-height:20px;resize:none;color:#1c1b1b;background:#fff;display:block}
+.x-ta:focus{border-color:#aa99ec;outline:none;box-shadow:0 0 0 1px #c4b8f3}
+.x-ta::placeholder,.x-input::placeholder{color:#8e8c99}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--x-info-container);color:#1c1b1b;font-weight:600;flex:none;position:relative}
+.av.s48{width:48px;height:48px;font-size:17px}.av.s44{width:44px;height:44px;font-size:15px}.av.s40{width:40px;height:40px;font-size:15px}.av.s32{width:32px;height:32px;font-size:12px}.av.s24{width:24px;height:24px;font-size:10px}
+.av.live::after{content:"";position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:999px;background:#18dd4c;border:2px solid #fff}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--x-neutral);color:#1c1b1b}
+.chip.info{background:var(--x-info-container)}.chip.ok{background:var(--x-success-container)}.chip.pink{background:#fdcfe1}
+.check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:14px;line-height:20px}
+.check input{width:18px;height:18px;margin:1px 0 0;accent-color:#2853d2;flex:none}
+.radio-row{display:flex;align-items:center;gap:12px;border:1px solid var(--x-gray-medium);border-radius:16px;padding:12px;cursor:pointer;background:#fff;font-weight:500;font-size:14px;line-height:20px}
+.radio-row:hover{background:var(--x-gray-light)}
+.radio-row input{width:18px;height:18px;margin:0;accent-color:#1c1b1b;flex:none}
+.radio-row.on{border-color:#1c1b1b}
+.fade{animation:fade .25s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* modal (Credenza desktop) / sheet (phone) */
+.ovl{position:fixed;inset:0;background:rgba(28,27,27,.45);backdrop-filter:blur(6px);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}
+.dlg{background:#fff;border-radius:24px;width:512px;max-width:100%;max-height:calc(100% - 24px);overflow:auto;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(28,27,27,.2)}
+.dlg h2{font-size:20px;line-height:26px;font-weight:500;margin:0;text-wrap:balance}
+.dlg .hd{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.xbtn{width:32px;height:32px;border-radius:999px;border:1px solid var(--x-outline-subtle);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#1c1b1b}
+.dlg .ft{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:16px}
+@container stage (max-width:640px){
+  .ovl{align-items:flex-end;padding:0}
+  .dlg{border-radius:24px 24px 0 0;width:100%;max-height:92%;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+  .dlg .ft{grid-auto-flow:row;grid-auto-columns:auto}
+  .dlg .ft .x-pill.dark,.dlg .ft .x-pill.blue{order:-1}
+}
+
+/* ---------- trial wall ---------- */
+.tw{min-height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse 60% 40% at 50% 28%,#e6e4ff 0%,#fdf8f8 70%)}
+.strip{background:var(--x-info-container);display:flex;align-items:center;gap:12px;padding:10px 16px;min-height:52px;font-size:14px}
+.strip .t{flex:1;min-width:0}
+.strip .t b{font-weight:600}
+.strip .x-pill{height:36px;padding:0 16px}
+.strip.human{background:#dce1ff}
+.strip .meta{color:var(--x-on-subtle);font-size:13px}
+.steps{display:flex;justify-content:center;gap:12px;align-items:center;padding:22px 16px 6px;font-size:14px;flex-wrap:wrap}
+.steps .s{display:flex;align-items:center;gap:8px;color:#1c1b1b}
+.steps .dot{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#c8ffc1;color:#006e20}
+.steps .dot.cur{background:var(--x-info);color:#fff}
+.steps .ln{width:28px;height:1px;background:var(--x-outline-subtle)}
+.tw h1{font-family:var(--x-serif);font-style:italic;font-weight:400;font-size:44px;line-height:1.1;text-align:center;margin:12px 16px 14px;letter-spacing:-.01em}
+.cats{display:flex;justify-content:center;gap:28px;padding:0 16px 20px;flex-wrap:wrap}
+.cat{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;color:#1c1b1b;background:none;border:0;cursor:pointer}
+.cat .ic{width:44px;height:44px;border-radius:999px;border:1px solid var(--x-outline-subtle);display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--x-info)}
+.cat.on .ic{border:2px solid var(--x-info)}
+.cat.on{font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;padding:4px 190px 24px;max-width:1440px}
+@container stage (max-width:1200px){ .cards{padding:4px 40px 24px} }
+@container stage (max-width:900px){ .cards{grid-template-columns:1fr;padding:4px 16px 24px} }
+.rc{background:#fff;border:1px solid var(--x-divider);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.rc.best{border:2px solid var(--x-info);box-shadow:0 8px 24px rgba(40,83,210,.15)}
+.rc .best-tag{background:var(--x-info);color:#fff;font-size:12px;font-weight:600;padding:8px 16px;display:flex;gap:6px;align-items:center}
+.rc .img{height:66px;background:linear-gradient(135deg,#2b8a4b,#64c27d);position:relative}
+.rc .img.b{background:linear-gradient(135deg,#5a6b7a,#b2bcc6)}
+.rc .img.c{background:linear-gradient(135deg,#0d2c4a,#3d6b94)}
+.rc .img .logo{position:absolute;left:16px;bottom:-22px;width:52px;height:52px;border-radius:999px;background:#fff;border:1px solid var(--x-divider);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;text-align:center;line-height:1.1;padding:4px}
+.rc .bd{padding:24px 18px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.rc .tags{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:#484646}
+.rc .tags .chip{height:22px;font-size:12px}
+.rc h3{margin:0;font-size:18px;line-height:24px;font-weight:600}
+.rc .why{background:var(--x-info-container);border-radius:10px;padding:10px 12px;font-size:14px}
+.rc .leave{background:var(--x-surface-container);border-radius:10px;padding:10px 12px;font-size:14px;color:#484646}
+.rc .leave b{color:#1c1b1b;font-weight:500}
+.rc .lk{display:flex;justify-content:space-between;font-weight:500;font-size:15px;margin-top:auto}
+.rc .lk .x-link{text-decoration:none;color:#1c1b1b}
+.rc .lk .x-link.b{color:var(--x-info)}
+.rc .ft{background:var(--x-green-light);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:#484646}
+.tw .more{text-align:center;padding:4px 16px 120px;font-size:15px}
+.sticky{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--x-divider);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:16px;z-index:5;margin-top:auto}
+.sticky .faces{display:flex}
+.sticky .faces .av{width:36px;height:36px;border:2px solid #fff;margin-left:-8px;background:#d9c4b0;font-size:11px}
+.sticky .faces .av:first-child{margin-left:0}
+.sticky .claim{font-size:18px;flex:1;min-width:0}
+.sticky .claim b{color:var(--x-info);font-weight:500}
+.sticky .fine{font-size:12px;color:#484646}
+.sticky .x-pill{height:48px;padding:0 28px;font-size:16px}
+@container stage (max-width:640px){
+  .tw h1{font-size:36px}
+  .cats{gap:16px}
+  .cat{font-size:14px}
+  .sticky{flex-wrap:wrap}
+  .sticky .claim{font-size:16px;order:1;flex:1 1 60%}
+  .sticky .faces{order:2}
+  .sticky .x-pill{order:3;width:100%;justify-content:center}
+  .sticky .fine{order:4;width:100%;text-align:center}
+  .strip{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:8px 12px;align-items:start}
+  .strip .t{grid-column:2}
+  .strip .xbtn{grid-column:3;grid-row:1}
+  .strip .x-pill{grid-column:1/-1;justify-content:center}
+}
+/* ask sheet */
+.sheet{position:fixed;right:24px;bottom:96px;width:380px;max-width:calc(100% - 32px);background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(28,27,27,.25),0 0 0 1px var(--x-divider);z-index:30;display:flex;flex-direction:column;overflow:hidden;max-height:70%}
+.sheet .hd{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--x-divider)}
+.sheet .hd .n{font-weight:600;font-size:15px;line-height:20px}
+.sheet .hd .r{font-size:13px;color:#484646;line-height:18px}
+.sheet .msgs{padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:auto;flex:1}
+.msg{max-width:85%;padding:10px 12px;border-radius:16px;font-size:14px;line-height:20px}
+.msg.them{background:var(--x-surface-container);border-bottom-left-radius:6px;align-self:flex-start}
+.msg.me{background:var(--x-info);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+.msg.sys{align-self:center;background:none;color:#484646;font-size:12.5px;text-align:center;max-width:100%;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 10px}
+.chips button{border:1px solid var(--x-outline-subtle);background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer;color:#1c1b1b}
+.chips button:hover{background:var(--x-gray-light)}
+.sheet form{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--x-divider)}
+.sheet form input{flex:1;min-width:0;height:40px;border:1px solid var(--x-outline-subtle);border-radius:999px;padding:0 14px;font:inherit;font-size:14px}
+.sheet form button{height:40px;width:40px;border-radius:999px;border:0;background:#1c1b1b;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.sheet form button:disabled{background:var(--x-divider);color:#adaaaa}
+@container stage (max-width:640px){ .sheet{right:0;left:0;bottom:0;width:100%;max-width:100%;border-radius:20px 20px 0 0;max-height:85%} }
+
+/* ---------- account + cancel ---------- */
+.acct{max-width:616px;margin:0 auto;padding:36px 16px 60px;display:flex;flex-direction:column;gap:14px}
+.acct h2{font-size:20px;font-weight:500;margin:10px 0 0}
+.row{display:flex;align-items:center;gap:16px;padding:14px 16px;min-height:60px}
+.row + .row{border-top:1px solid var(--x-divider)}
+.row .ic{width:40px;height:40px;border-radius:999px;background:var(--x-neutral);display:inline-flex;align-items:center;justify-content:center;flex:none;color:#1c1b1b;font-size:13px;font-weight:500}
+.row .ic.ok{background:var(--x-success-container)}
+.row .tx{flex:1;min-width:0}
+.row .tx .a{font-size:15px;font-weight:500;line-height:20px}
+.row .tx .b{font-size:13px;color:#484646;line-height:18px}
+.row .x-pill.sm{height:36px}
+.row .x-pill.cancel{border-color:#ba1a1a;color:#ba1a1a;background:#fff}
+.pay{background:var(--x-info-container);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.pay h3{margin:0;font-size:20px;font-weight:500}
+.pay p{margin:0;font-size:15px;color:#1c1b1b}
+.gift{display:flex;gap:16px;padding:16px;align-items:center}
+.gift .art{width:108px;height:142px;border-radius:12px;background:linear-gradient(160deg,#0f4b3a,#1b7a5a);flex:none}
+.gift h3{margin:0 0 6px;font-size:20px;font-weight:500}
+.gift p{margin:0 0 10px;font-size:15px}
+.callrow{background:var(--x-info-container);border-radius:16px}
+.band{display:flex;align-items:center;gap:12px;background:var(--x-blue-light);margin:0 -24px;padding:14px 24px;font-size:15px}
+.band b{font-weight:600}
+.benefit{display:flex;align-items:center;gap:16px;border:1px solid var(--x-gray-medium);border-radius:16px;padding:16px}
+.benefit .ic{width:40px;height:40px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.benefit .a{font-size:18px;font-weight:500;line-height:24px}
+.benefit .b{font-size:16px;line-height:22px}
+.person{display:flex;gap:16px;align-items:flex-start;background:var(--x-info-container);border-radius:16px;padding:16px}
+.person .a{font-size:17px;font-weight:600;line-height:22px;margin-bottom:4px}
+.person .b{font-size:14px;line-height:20px;color:#1c1b1b}
+.person .meta{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.slot{border:1px solid var(--x-outline-subtle);border-radius:12px;padding:10px 8px;background:#fff;cursor:pointer;font:inherit;text-align:center;line-height:18px}
+.slot .d{font-size:12px;color:#484646}
+.slot .t{font-size:15px;font-weight:600}
+.slot.on{border:2px solid #1c1b1b}
+.slot:hover{background:var(--x-gray-light)}
+.ok-note{display:flex;gap:12px;align-items:flex-start;background:var(--x-green-light);border-radius:16px;padding:14px 16px;font-size:15px;line-height:22px}
+.ok-note .ck{width:28px;height:28px;border-radius:999px;background:var(--x-success-container);display:inline-flex;align-items:center;justify-content:center;flex:none;color:#006e20}
+.fine{font-size:13px;color:#484646;line-height:18px}
+.blur{filter:blur(6px);pointer-events:none;user-select:none}
+.ctr{text-align:center}
+.divider{height:1px;background:var(--x-divider);margin:4px 0}
+.reach{border:1px solid var(--x-divider);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--x-surface)}
+.reach .q{font-size:15px;font-weight:500}
+@container stage (max-width:640px){ .slots{grid-template-columns:repeat(2,1fr)} .person{padding:12px;gap:12px} .person .a{font-size:16px} .benefit{padding:10px 12px;gap:12px} .benefit .ic{width:32px;height:32px} .benefit .a{font-size:15px;line-height:20px} .benefit .b{font-size:13px;line-height:18px} .row .x-pill.sm{padding:0 12px} .dlg{gap:12px} }
+
+/* ---------- project 1 task page ---------- */
+.task{max-width:716px;margin:0 auto;padding:28px 16px 120px;display:flex;flex-direction:column;gap:14px}
+.back{width:32px;height:32px;border-radius:999px;border:1px solid var(--x-outline-subtle);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#1c1b1b}
+.task h1{font-size:24px;line-height:30px;font-weight:600;color:var(--x-plum);margin:4px 0 2px}
+.task label.q{font-size:15px;font-weight:500;display:block;margin-bottom:8px}
+.task .x-input{border-color:#aa99ec}
+.hr{background:#fff;border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px;margin-top:10px}
+.hr .top{display:flex;gap:12px;align-items:flex-start}
+.hr .a{font-size:17px;font-weight:600;line-height:22px}
+.hr .b{font-size:14px;line-height:20px;color:#484646;margin-top:2px}
+.hr .act{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hr .act .x-pill{height:44px}
+.hr .fine{font-size:13px;color:#484646}
+.hr.sent{background:var(--x-green-light);border-color:transparent}
+.footbar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--x-divider);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:center;gap:16px;z-index:5;margin-top:auto}
+.footbar .cnt{border:1px solid var(--x-outline-subtle);border-radius:999px;height:36px;display:inline-flex;align-items:center;padding:0 14px;font-weight:600;font-size:14px;white-space:nowrap;flex:none}
+.footbar .sp{flex:1;max-width:220px}
+@container stage (max-width:640px){ .footbar .sp{max-width:12px} .task h1{font-size:22px} .hr .a{font-size:16px;line-height:21px} }
+.success{display:flex;gap:16px;align-items:center}
+.success .ck{width:48px;height:48px;border-radius:999px;background:var(--x-success-container);display:inline-flex;align-items:center;justify-content:center;flex:none;color:#1c1b1b}
+
+/* ---------- portfolio editor ---------- */
+.pf{display:flex;min-height:100%;flex:1}
+.rail{width:360px;flex:none;background:var(--x-secondary-container);padding:24px;display:flex;flex-direction:column;gap:16px;border-right:1px solid var(--x-outline-subtle)}
+.rail h2{font-size:24px;line-height:30px;margin:0;font-weight:600;display:flex;align-items:center;gap:8px}
+.rail .sub{font-size:16px;color:#1c1b1b;margin:-8px 0 0}
+.rcard{background:var(--x-surface-container);border:1px solid var(--x-outline-subtle);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.rcard .top{display:flex;gap:12px;align-items:flex-start}
+.rcard .a{font-size:16px;font-weight:500;line-height:22px}
+.rcard .b{font-size:14px;color:#484646;line-height:20px}
+.ring{width:48px;height:48px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex:none;background:conic-gradient(#2853d2 0 39%,#dce1ff 39% 100%);position:relative}
+.ring::before{content:"";position:absolute;inset:4px;border-radius:999px;background:var(--x-surface-container)}
+.ring span{position:relative}
+.ritem{background:#fff;border:1px solid var(--x-outline-subtle);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.ritem .a{font-size:15px;font-weight:500}
+.ritem .b{font-size:14px;color:#484646}
+.dots{display:flex;gap:4px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:999px;background:#c9c6c5;display:block}
+.dots i.on{width:14px;background:#2853d2;border-radius:4px}
+.acc{background:#fff;border:1px solid var(--x-outline-subtle);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center}
+.acc .ic{width:40px;height:40px;border-radius:999px;background:var(--x-info-container);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.acc .a{font-size:16px;font-weight:500;display:flex;gap:8px;align-items:center}
+.acc .b{font-size:14px;color:#484646}
+.acc .pct{font-size:12px;background:var(--x-info-container);border-radius:999px;padding:2px 8px;font-weight:500}
+.acc .pct.ok{background:var(--x-success-container)}
+.acc .car{margin-left:auto;color:#1c1b1b}
+.pfmain{flex:1;min-width:0;display:flex;flex-direction:column}
+.pfbanner{background:var(--x-divider);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pfbanner .a{font-size:16px;font-weight:500}
+.pfbanner .b{font-size:15px;color:#484646;display:flex;gap:6px;align-items:center}
+.pfbanner .b span{color:var(--x-info)}
+.toggle{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--x-outline-subtle);border-radius:999px;padding:4px 12px 4px 4px;font-size:15px}
+.toggle i{width:24px;height:24px;border-radius:999px;background:#c9c6c5;display:block}
+.preview{margin:24px;background:#fff;border:1px solid var(--x-divider);border-radius:16px;overflow:hidden;flex:1}
+.pv-top{display:flex;align-items:center;justify-content:space-between;padding:16px 50px;border-bottom:1px solid var(--x-divider);gap:16px;flex-wrap:wrap}
+.pv-top .n{font-size:20px;font-weight:600}
+.pv-top .r{font-size:13px;color:#484646}
+.pv-nav{display:inline-flex;background:var(--x-neutral);border-radius:999px;padding:4px;font-size:15px}
+.pv-nav span{padding:6px 14px;border-radius:999px}
+.pv-nav span.on{background:#fff;color:var(--x-info);font-weight:500}
+.pv-hero{display:grid;grid-template-columns:1.6fr 1fr;gap:32px;padding:40px 50px}
+.pv-hero h1{font-size:44px;line-height:1.05;font-weight:600;margin:14px 0;letter-spacing:-.01em}
+.pv-hero p{font-size:19px;line-height:1.35;margin:0 0 22px}
+.pv-hero .shot{border:1.5px dashed var(--x-info);border-radius:16px;background:var(--x-surface-container);min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;color:#1c1b1b;text-align:center}
+.pv-work{background:var(--x-surface);padding:36px 50px;border-top:1px solid var(--x-divider)}
+.pv-work h2{font-size:38px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
+.pv-work p{font-size:18px;line-height:1.4;color:#484646;max-width:560px;margin:0 0 28px}
+.pv-proj{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+.pv-proj .img{height:160px;border-radius:12px;background:linear-gradient(140deg,#5a3b7a,#b78bd1)}
+.pv-proj .meta{font-size:14px;color:#484646;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pv-proj h3{font-size:20px;margin:6px 0 6px}
+.pv-proj .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pfmode{position:sticky;bottom:12px;margin:0 auto;display:none;background:#fff;border-radius:999px;padding:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);gap:4px;z-index:6;width:max-content}
+.pfmode span{padding:10px 16px;border-radius:999px;font-size:15px;font-weight:500}
+.pfmode span.on{background:var(--x-neutral)}
+@container stage (max-width:900px){ .pv-hero{grid-template-columns:1fr} .pv-proj{grid-template-columns:1fr} .pv-top,.pv-hero,.pv-work{padding-left:24px;padding-right:24px} .rail{width:300px} }
+@container stage (max-width:640px){
+  .pf{flex-direction:column}
+  .pf .pfmain{display:none}
+  .rail{width:100%;border-right:0;padding:20px 16px 100px}
+  .pfmode{display:inline-flex}
+  .pfbanner.phone{display:flex}
+}
+.pfbanner.phone{display:none}
+
+/* ---------- completion dashboard ---------- */
+.dash{max-width:1000px;margin:0 auto;padding:28px 16px 60px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px}
+@container stage (max-width:900px){ .dash{grid-template-columns:1fr} }
+.hero-card{background:var(--x-info-container);border-radius:16px;padding:28px 24px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.hero-card h1{margin:0;font-size:24px;line-height:30px;font-weight:500;color:#1d3fa6}
+.hero-card .logo{width:56px;height:56px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;text-align:center;line-height:1.1;flex:none}
+.facts{display:flex;gap:24px;padding:20px 0 14px;flex-wrap:wrap}
+.fact{display:flex;gap:12px;align-items:center;font-size:14px;line-height:18px;flex:1;min-width:160px}
+.fact .ic{width:44px;height:44px;border-radius:999px;background:var(--x-neutral);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fact b{font-weight:500;font-size:15px;display:block}
+.fact span{color:#484646}
+.tabs2{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--x-divider);margin-bottom:24px}
+.tabs2 span{text-align:center;padding:10px;font-size:15px;font-weight:500}
+.tabs2 span.on{background:var(--x-info-container);border-radius:8px 8px 0 0}
+.done-banner{background:var(--x-green-light);border-radius:16px;padding:16px;display:flex;gap:16px;align-items:flex-start;margin-bottom:24px}
+.done-banner .tx{flex:1;min-width:0}
+.done-banner h2{margin:0 0 6px;font-size:18px;font-weight:600}
+.done-banner p{margin:0 0 14px;font-size:16px;line-height:22px}
+.done-banner .acts{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.done-banner .medal{width:112px;height:112px;border-radius:16px;background:var(--x-green-medium);display:flex;align-items:center;justify-content:center;flex:none}
+.done-banner .sub{font-size:14px;line-height:20px;color:#484646;margin-top:10px}
+.done-banner.joined{background:var(--x-info-container)}
+.proj{background:#fff;border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.proj .num{width:40px;height:40px;border-radius:999px;border:1px solid var(--x-outline-subtle);display:inline-flex;align-items:center;justify-content:center;position:relative;flex:none}
+.proj .num::after{content:"✓";position:absolute;right:-4px;bottom:-4px;width:16px;height:16px;border-radius:999px;background:#18dd4c;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
+.proj .a{font-size:16px;font-weight:500;flex:1}
+.side{display:flex;flex-direction:column;gap:16px}
+.tracker{background:#fff;border:1px solid var(--x-outline-subtle);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.tracker .a{font-size:16px;font-weight:500}
+.tracker .b{font-size:14px;color:#484646;line-height:20px}
+.bar2{height:8px;border-radius:999px;background:#006e20}
+.tracker .legend{display:flex;justify-content:space-between;font-size:12px;color:#484646}
+.ready{background:var(--x-green-light);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.ready .a{font-size:16px;font-weight:500}
+.ready .b{font-size:14px;line-height:20px}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--x-gray-medium);border-radius:16px;padding:14px;cursor:pointer;background:#fff}
+.opt:hover{background:var(--x-gray-light)}
+.opt.on{border-color:#1c1b1b}
+.opt input{margin:3px 0 0;width:18px;height:18px;accent-color:#1c1b1b;flex:none}
+.opt .a{font-size:15px;font-weight:500;line-height:20px}
+.opt .b{font-size:14px;color:#484646;line-height:20px}
+/* ---------- 6. trial catalog + pick help ---------- */
+.catp{max-width:1200px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:18px}
+.trialbar{display:flex;gap:10px;align-items:center;background:var(--x-info-container);border-radius:12px;padding:10px 14px;font-size:14px;flex-wrap:wrap}
+.cat-hd h1{font-family:var(--x-serif);font-style:italic;font-weight:400;font-size:40px;line-height:1.1;margin:8px 0 6px;letter-spacing:-.01em}
+.cat-hd p{margin:0;font-size:15px;color:#484646}
+.filt{display:flex;gap:8px;flex-wrap:wrap}
+.fchip{height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--x-outline-subtle);background:#fff;font:inherit;font-size:14px;cursor:pointer;color:#1c1b1b}
+.fchip.on{background:#1c1b1b;color:#fff;border-color:#1c1b1b}
+.cgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+@container stage (max-width:1000px){ .cgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@container stage (max-width:640px){ .cgrid{grid-template-columns:1fr} .cat-hd h1{font-size:32px} }
+.rc .img.d{background:linear-gradient(135deg,#5b21b6,#a78bfa)}.rc .img.e{background:linear-gradient(135deg,#b45309,#fbbf24)}.rc .img.f{background:linear-gradient(135deg,#9a3412,#fb923c)}
+.rc .ft .x-pill.out{background:#fff}
+.pick{position:relative;display:flex;gap:16px;align-items:center;background:#dce1ff;border-radius:16px;padding:16px 18px}
+.pick .t{flex:1;min-width:0}
+.pick .a{font-size:17px;font-weight:600;line-height:22px;margin-bottom:4px}
+.pick .b{font-size:14px;line-height:20px}
+.pick.sent{background:var(--x-green-light)}
+@container stage (max-width:640px){ .pick{flex-wrap:wrap;padding-right:52px} .pick .x-pill{width:100%;justify-content:center} .pick .xbtn{position:absolute;right:12px;top:12px} }
+.q{display:flex;flex-direction:column;gap:8px}
+.ql{font-size:15px;font-weight:500}
+.ql .fine{font-weight:400}
+.gchips{display:flex;flex-wrap:wrap;gap:8px}
+.gchip{border:1px solid var(--x-outline-subtle);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;line-height:18px;cursor:pointer;color:#1c1b1b;text-align:left}
+.gchip:hover{background:var(--x-gray-light)}
+.gchip.on{border-color:#1c1b1b;background:#1c1b1b;color:#fff}
+/* ---------- 7. inactivity check-in ---------- */
+.checkin{background:#dce1ff;border-radius:16px;padding:18px;display:flex;gap:16px;align-items:flex-start;margin-bottom:24px}
+.checkin .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.checkin h2{margin:0;font-size:20px;font-weight:600;line-height:26px;text-wrap:balance}
+.checkin p{margin:0;font-size:15px;line-height:22px}
+.checkin .acts{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.checkin.done{background:var(--x-green-light)}
+.proj.todo .num::after,.proj.lock .num::after{display:none}
+.proj.todo .num{border-color:var(--x-info);color:var(--x-info);font-weight:600}
+.proj.lock{opacity:.55}
+.bar2.p25{background:linear-gradient(90deg,#006e20 0 25%,var(--x-divider) 25% 100%)}
+.email .from{font-size:13px;color:#484646;margin-bottom:4px}
+.email .body p{margin:0 0 12px;font-size:15px;line-height:22px}
+.email .body .x-link{font-size:15px}
+@container stage (max-width:640px){ .checkin{flex-wrap:wrap} .checkin .av{order:0} .checkin .xbtn{order:1;margin-left:auto} .checkin .tx{order:2;flex-basis:100%} .checkin .acts .x-pill{flex:1 1 45%;justify-content:center} }
+/* ---------- Vinny round: shared pieces ---------- */
+.av.photo{background:#e5e2e1;overflow:visible}
+.av.photo img{width:100%;height:100%;border-radius:999px;object-fit:cover;display:block}
+.ico{width:48px;height:48px;border-radius:999px;background:var(--x-info-container);display:inline-flex;align-items:center;justify-content:center;flex:none;color:#1c1b1b}
+.ico.ok{background:var(--x-success-container);color:#006e20}
+.ico-pair{display:inline-flex;align-items:flex-end;position:relative;flex:none;width:56px;height:48px}
+.ico-pair .ico{width:36px;height:36px;position:absolute;left:0;top:0}
+.ico-pair .av{position:absolute;right:0;bottom:0;border:2px solid #fff}
+.dlg .hdl{display:flex;gap:16px;align-items:center;flex:1;min-width:0}
+.dlg .hdl h2{flex:1;min-width:0}
+.dlg .dp{margin:0;font-size:16px;line-height:24px}
+.dlg .dp b{font-weight:600}
+.ipill{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:999px;background:var(--x-info-container);color:#2853d2;font-size:12px;font-weight:500;white-space:nowrap;flex:none}
+.ipill.wide{width:100%;justify-content:center;height:32px;font-size:13px}
+.datebox{border:2px solid #2853d2;background:#dce1ff;border-radius:12px;padding:14px;text-align:center;font-size:15px;line-height:22px;width:100%;box-sizing:border-box}
+.datebox .d{font-weight:600}
+.datebox .d span{color:#484646;font-weight:400}
+.datebox .t{font-size:16px;font-weight:600}
+.queued{background:var(--x-surface);border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.queued .a{font-size:17px;font-weight:600;line-height:22px}
+.queued .b{font-size:14px;color:#484646;line-height:20px}
+.queued .datebox{margin-top:10px}
+.dots-div{text-align:center;color:#484646;letter-spacing:4px;font-size:18px;line-height:14px;position:relative}
+.dots-div::after{content:"";display:block;width:64px;height:4px;border-radius:2px;background:#f0e6ec;margin:6px auto 0}
+.dash-div{border-top:1px dashed var(--x-divider)}
+.dlg::before{content:"";display:none;width:80px;height:6px;border-radius:3px;background:#efe6ec;margin:-6px auto 0}
+.fab{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:999px;background:#fff;box-shadow:0 8px 24px rgba(28,27,27,.22),0 0 0 1px var(--x-divider);display:flex;align-items:center;justify-content:center;z-index:15;border:0;cursor:pointer;padding:0}
+.fab.up{bottom:112px}
+.fab .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:999px;background:#2853d2;color:#fff;font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 4px}
+.fab .badge.ok{background:#006e20}
+.fab .badge.ok svg{width:11px;height:11px;stroke:#fff}
+.dim{display:none}
+.sheet.intro{max-height:none}
+.intro-body{padding:4px 16px 16px;display:flex;flex-direction:column;gap:14px}
+.intro-body p{margin:0;font-size:16px;line-height:24px}
+.sheet .hd .n{font-size:16px}
+.msg.them{background:var(--x-info-container)}
+.chips.stack{flex-direction:column}
+.chips.stack button{width:100%;text-align:center;padding:10px 12px;font-size:15px}
+.sheet form button.blue{background:#2853d2}
+.row .tx.subcols{display:flex;gap:20px}
+.row .x-link.cancel{color:#ba1a1a;text-decoration:none;font-weight:500}
+.radio-row input{margin:0;width:20px;height:20px;accent-color:#2853d2;flex:none}
+.slots{grid-template-columns:repeat(2,1fr)}
+.slot{background:var(--x-surface);border-radius:12px;padding:14px 8px;line-height:22px}
+.slot .d{font-size:14px;color:#1c1b1b;font-weight:500}
+.slot .d span{color:#484646;font-weight:400}
+.slot .t{font-size:15px;font-weight:500}
+.slot.on{border:2px solid #2853d2;background:#dce1ff;padding:13px 7px}
+.hr .top{align-items:center}
+.congrats{background:#fff;border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.congrats .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.congrats h2{margin:0;font-size:20px;font-weight:600}
+.congrats p{margin:0;font-size:16px;line-height:22px}
+.congrats .legend{display:flex;justify-content:space-between;font-size:12px;color:#484646}
+.congrats .ready{background:var(--x-green-medium);border-radius:16px;padding:16px;gap:10px}
+.congrats .ready .a{font-size:16px;font-weight:500}
+.congrats .ready .b{font-size:15px;line-height:22px}
+.peers{background:var(--x-info-container);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.peers .a{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.peers .b{font-size:15px;line-height:22px}
+.peers .b b{font-weight:600}
+.peers .acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.x-pill.blue-out{border-color:#2853d2;color:#2853d2;background:#fff}
+.opt{align-items:center}
+.opt.on{border:2px solid #2853d2;padding:13px}
+.opt input{margin:0;width:20px;height:20px;accent-color:#2853d2}
+.opt .mins{color:#797676;font-weight:400}
+.faq .q{font-size:15px;font-weight:600;line-height:20px}
+.faq .a{font-size:14px;line-height:20px;color:#484646;margin-top:2px}
+@container stage (max-width:640px){
+  .dlg::before{display:block}
+  .dim{display:block;position:fixed;inset:0;background:rgba(28,27,27,.45);z-index:29;backdrop-filter:blur(3px);border:0;padding:0}
+  .fab{right:16px}
+  .fab.up{bottom:150px}
+  .fab.pf-fab{bottom:14px}
+  .peers .acts .x-pill.blue{flex:1 1 auto}
+}
+</style>
+
+<header class="bar">
+  <h1>Human connection <span>· clickable prototypes</span></h1>
+  <nav class="tabs" role="tablist" aria-label="Flows" id="tabs"></nav>
+  <div class="right">
+    <div class="seg" role="group" aria-label="Arm"><button id="armC" aria-pressed="false">Control</button><button id="armT" aria-pressed="true">Treatment</button></div>
+    <div class="seg device" role="group" aria-label="Device"><button id="devD" aria-pressed="true">Desktop</button><button id="devP" aria-pressed="false">Phone</button></div>
+    <button class="ghost" id="reset">Reset flow</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stagewrap"><main class="stage" id="stage" aria-live="polite"></main></div>
+  <aside class="notes" id="notes"></aside>
+</div>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const I = {
+  home: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>',
+  menu: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  x: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  check: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  arrowL: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  chevL: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  chevR: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  chevD: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  send: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+  chat: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  spark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg>',
+  cal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  live: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9M16.5 7.5a6.5 6.5 0 0 1 0 9M4.6 4.6a10.5 10.5 0 0 0 0 14.8M19.4 4.6a10.5 10.5 0 0 1 0 14.8"/></svg>',
+  medal: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1c1b1b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 3h6l2 5H7z"/><path d="M10.5 14.5l1 1 2-2.5"/></svg>',
+  lock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  star: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
+  pencil: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17z"/></svg>',
+  plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  globe: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  hand: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5V4.5a1.5 1.5 0 0 1 3 0V12M14 12V6a1.5 1.5 0 0 1 3 0v8.5a6.5 6.5 0 0 1-13 0V10a1.5 1.5 0 0 1 3 0v3"/></svg>',
+  users: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 22 19"/></svg>',
+  clock: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  info: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  question: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2853d2" stroke-width="2" stroke-linecap="round"><path d="M9 9.5a3 3 0 1 1 4.2 2.7c-.8.4-1.2 1-1.2 1.8V15"/><path d="M12 18.5h.01"/></svg>',
+  calcheck: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#006e20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M9 15.5l2 2 4-4"/></svg>',
+  heart: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b21b6" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  refresh: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.5-4M4 13a8 8 0 0 0 14.5 4"/><path d="M20 4v7h-7M4 20v-7h7"/></svg>',
+  spark4: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></svg>',
+};
+
+// ---------- prototype state ----------
+const FLOWS = [
+  { id: 'trial', label: '1 · Trial wall' },
+  { id: 'cancel', label: '2 · Cancel' },
+  { id: 'project1', label: '3 · Project 1' },
+  { id: 'portfolio', label: '4 · Portfolio' },
+  { id: 'completion', label: '5 · Completion' },
+  { id: 'pick', label: '6 · Pick help' },
+  { id: 'inactivity', label: '7 · Inactivity' },
+];
+let flow = (location.hash || '').replace('#', '');
+if (!FLOWS.some(f => f.id === flow)) flow = 'trial';
+let arm = 'T';
+let device = 'D';
+const log = [];
+const fresh = () => ({
+  trial: { stall: false, sheet: null, msgs: [], sent: false, dismissed: false },
+  cancel: { step: 'account', reason: '', other: '', note: '', slot: null, likelihood: '', booked: null, cancelled: false, reachSent: false },
+  project1: { url: '', note: '', requested: false, modal: false, showNoteWarn: false },
+  portfolio: { note: '', requested: false, open: false },
+  completion: { modal: false, choice: '', joined: false, thanks: false, faq: false },
+  pick: { open: false, goal: '', between: [], note: '', sent: false, dismissed: false, shown: false },
+  inact: { answer: '', note: '', sent: false, email: false, dismissed: false, shown: false },
+});
+let S = fresh();
+let stallTimer = null;
+
+function ev(name, props) {
+  const t = new Date();
+  log.unshift({ t: `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}`, name, props: props ? JSON.stringify(props) : '' });
+  if (log.length > 40) log.pop();
+  renderNotes();
+}
+
+// ---------- shared chrome ----------
+const top = () => `<div class="x-top"><span aria-hidden="true">${I.home}</span><span class="mark" aria-label="Extern">extern</span><span aria-hidden="true">${I.menu}</span></div>`;
+const PHOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCABwAHADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCHbnvS496UDimueeK0EO4zxUbH5qA1Ndh70AP34FJuPrUJasbxD4nt9EjCf625cZSIHHHqfQUAdB54A5OPc0nnr3IrxXXfEN7fsWubiRmPKxqxCr+ArPtPEWr2W1Yb6VFB3KpOQPzqeYbR72JR60F9x4rhvBnjNtYxaXwRbn+Bl4D+31rsVk96oRZBPWlBqFZAaeGOc0AS5yaXtSAig0AI1RSHipj0qCTGcUCGb6jZ/SlPWo3bBoGVtV1FNL0+a8l5WNScep7D868jvNQmvJpLudt80p3ZPb/6wrqviPqvy22nI3LkyyfQcD+tcfGEbBbpjOKTGissRlfJGSx711nhn4fTeIyXIkSJesgH6Vc+Hngh/GOqmNX8qztyDPL35/hX3P6V9IWeh6bpGmx2tsscEMS4A4AA9z/WuerJrRbnTRpqWstj5e1vwvdeEr+MBm2k7opRxkjt9a7/AEbUV1PT4bperr8w9G7j862PixZ2N14bmkgmgklgZZl2OCcZwensa8/8BXxH2mzZuARIo+vB/pV0JuUfe3IrwUZe6dyjVKr81WVqkBzWxgXFYEdad1qKM5FTA9KBA4GOKqSdc1bcHvVOXrVCGMarTSgAkkAetSSPgVieILpodMuin3zEwH5UmNHmPiHUjqeqXV3nKbtkef7oOBVrQfCviDxGVk0zTZp4S2zzeAoPfmsW4TEDkcn5T+tfRfwIuo28JWSBQMFwfruOa56s3FaHRRgpysxngLwdqnh1WF7bWqLFnyriJdsmOvznvk5FdX4otbjUIWht4Y7lkiUrFLnZuI6sB1ArZ8QagsUCRDbGjN80jdBUK3sMWrxrFKkoaNQwU5IGOv0rilO7ud6ppKx5vf6BrN5oc9ve6Zp8Ttasxe3iCGN+fkGOoxjmvJ/Ct79m12MA4WTMZ/H/AOuK+ovFF7HaadJMSFRELE+wGTXx+Li4j1S4kUbHWZmA/undmumhJts5cTGyR7ZE4IBqcVk6bctcWkMrjazorMvoSOa0Y5M967DiL0VTiq0TcVYU07ASS8A1nTtzxV6dsA4rOnNMRWmc+tc74kuVis5S5wuxs+/Fb07AV5r4u1hryfyY2/dBiB/tYOM/Spk7FIwFOHIBwCPyr1L4EeLIrd7rRLp1WVXM8IHG4H7wH0PP415PI2yUemOaNKmmi1u0mgkaOVZVKspwQc1z1I80bG1OXLJM+r9UuNYErGBraa0c52SRksv5Hp+FVIJ9WjuQtrbWChsbmAYBfXtSeG/EksFvFDfwNIwAKuo6j3q/qfimHZttYGMxHy5XAH1rhTVj0+fS1jlPjH4pi0TwxLaiUPd3Q8iNSfX7x+gGf0r5+gkJbzH5Z23MfWtn4h3t9qPi+6N9O0pjISMHoi4zgD61jsu3aB0wBXbRjyxPNrT5pHqekzh7SJh0KjFasT9K5zw3JixiRueOPpW9G3IrqRzs1YGxjmrcbA1nwMOKuR80xEs5/GsyVxnB64q/cNzWJq00Ftay3NwzRxwqXLg4Ix6e9DAg1C4EUTsTghTXkV5PukiQ/eCncfxOK2Nc8Xz3zGO0adIfWULuP5CueXJJlY5aspO5cUJkM7Z9MCm6exj1C3kHRJFJ/OklwpxuyT2FXdCt457iZJOnkOV+owazlsXFan0v4faK/wBPgkAwwUA5q5d2iJztGao+BoxNpFrNkYmhRiB64FbeqQpbw+YxA57npXmtHpLY+bvidb/ZvFrv08zmubMwVTu7Dium+LEyzeJS6HcAgIOMdTXHOxdR78ivQpfCjgq/Ezv/AAzrEM1qg3hZFA4z3FdhBIrYKnNeJ27PEwdCVI9K6nRvGtxY7Y7iL7RGOMg4Yf0NbxkYNHqMJzjkVoQPjAzmsHTNQjv7WK5gbMcq7hnqPY1qQSnIrREk9w/XNcB8SNQeGzgskOFuHLP/ALq44/M/pXc3LcGvLviJOZNVt4u0cOfxLH/ClLYaORlJGcdTRs2REmTmkk+8o9TVhWUny1UN6+1ZMtGVlhJuJPHetjRLg2l7DPz8p5HqCMf1qjPbFXOcY61YhcxbSBypDD8Klq5UdGfVPg+wEGgafEAN8UCAkdc4rWvbXfC7ygMCMYPf61B4YKT6fBKpBEkaOCe4Kg/1rRv0AjAY5yRXmNanpp6XPlf4jXAvPF+p4xtikEKgeigD+ea5qHYoIfv+laGsXRvtVvbo/wDLa4kk/Niaz5EB56V6aVkkeW3d3HF0XJABOPTrTfNQEYUqTUflOpVuxP6U5kwwzTQmd58PL52jurRmykZWRAe2cg/yFd/bscA968u8AzeXq80XZ4T+hFemWrZFbR2IZNdHCkk15R42k8zxBMP7saL+mf616pfyAjAXGB615H4rkEmv3hHZgv5AUSBGFcDABHWooLgx5QryTyamuP8AV59OaVUBIbArNooUNvOGyBUi8npx6U0rnpT17U0gPqP4Y3YvvBei3GcsbVY25/iQlT/IVu+I5Ra6VeXWcfZ7Wab/AL5Q4/XFcR8C7vz/AAA65ybK9kQ+yttYf+hV03j648r4feJLzPAs2hU+7cH+YrglT/e2O2NT90fJ+PlXPXFVp5dvGDmrhHaoWiDk8Cu6xxFeKeV3B/yKmMhkf6UpVYlJqKI4BJ6mhILm94Pl8vXoDn74dP8Ax3/61eq2j5C4ryHw8/laxYt/01A/PivWrVsqDWkSWf/Z';
+const avatar = (ini, size, live) => (ini === 'S' || ini === 'C')
+  ? `<span class="av s${size} photo${live ? ' live' : ''}" aria-hidden="true"><img src="${PHOTO}" alt=""></span>`
+  : `<span class="av s${size}${live ? ' live' : ''}" aria-hidden="true">${ini}</span>`;
+
+// ---------- 1. trial wall ----------
+function trialWall() {
+  const s = S.trial;
+  const stripControl = `<div class="strip" role="status">
+    <span aria-hidden="true" style="color:#2853d2">${I.chat}</span>
+    <div class="t">Still deciding? Join a free live Q&amp;A, Thu, Nov 20 · 12:00 PM ET.</div>
+    <button class="x-pill blue" data-a="tw-webinar">Save my spot</button>
+    <button class="xbtn" aria-label="Dismiss" data-a="tw-dismiss" style="border:0;background:none">${I.x}</button>
+  </div>`;
+  const strip = arm === 'C' && s.stall && !s.dismissed ? stripControl : '';
+
+  const card = (best, cls, logo, tags, title, mid) => `<article class="rc${best ? ' best' : ''}">
+    ${best ? `<div class="best-tag">${I.star} Best fit for Finance</div>` : ''}
+    <div class="img ${cls}"><div class="logo">${logo}</div></div>
+    <div class="bd">
+      <div class="tags">${tags}</div>
+      <h3>${title}</h3>
+      ${mid}
+      <div class="lk"><button class="x-link">Learn more</button><button class="x-link${best ? ' b' : ''}">See first week</button></div>
+    </div>
+    <div class="ft"><span style="display:inline-flex;gap:6px;align-items:center">${I.lock} Included with membership</span><button class="x-pill ${best ? 'blue' : 'out'} sm" data-a="tw-start">Start $0 trial</button></div>
+  </article>`;
+
+  let human = '';
+  if (arm === 'T' && s.stall) {
+    if (s.sheet === 'intro') {
+      human = `<div class="dim" data-a="tw-min"></div><section class="sheet intro fade" role="dialog" aria-labelledby="tw-it">
+        <div class="hd">${avatar('C', 48, true)}<div style="flex:1;min-width:0"><div class="n" id="tw-it" style="font-size:18px">Hey! Need help deciding?</div></div><button class="xbtn" aria-label="Minimize" data-a="tw-min">${I.x}</button></div>
+        <div class="intro-body">
+          <p>I'm Carlinda, and I've helped many students choose their first Externship. Feel free to ask me anything!</p>
+          <span class="ipill wide">${I.info} Responses usually take about 10 mins</span>
+          <button class="x-pill blue" style="width:100%" data-a="tw-intro-ask">Ask Carlinda</button>
+        </div>
+      </section>`;
+    } else if (s.sheet === 'chat') {
+      human = `<div class="dim" data-a="tw-min"></div><section class="sheet fade" role="dialog" aria-label="Chat with Carlinda">
+        <div class="hd">${avatar('C', 48, true)}<div style="flex:1;min-width:0"><div class="n">Carlinda Lee</div><div class="r">Available from 9 AM to 6 PM ET</div></div><button class="xbtn" aria-label="Minimize" data-a="tw-min">${I.x}</button></div>
+        <div class="msgs" id="tw-msgs">
+          <div class="msg them">Hi there, <span style="color:#2853d2">Jordan</span>! What is it that's making you hesitate? Time, cost, or which externship to pick?</div>
+          ${s.msgs.map(m => `<div class="msg ${m.who}">${esc(m.text)}</div>`).join('')}
+          ${s.sent ? `<div class="msg sys">Sent. Carlinda replies here and by email to jor•••@gmail.com. Minimize this and keep browsing.</div>` : ''}
+        </div>
+        ${s.sent ? '' : `<div class="chips stack" aria-label="Common questions">
+          <button data-a="tw-chip" data-q="Is this a paid internship?">Is this a paid internship?</button>
+          <button data-a="tw-chip" data-q="How many hours do I need to dedicate?">How many hours do I need to dedicate?</button>
+          <button data-a="tw-chip" data-q="Which one should I pick?">Which one should I pick?</button>
+          <button data-a="tw-chip" data-q="What happens after my trial ends?">What happens after my trial ends?</button>
+        </div>`}
+        <form data-f="tw-send"><label class="sr" for="tw-q">Your question</label><input id="tw-q" placeholder="${s.sent ? 'Add anything else' : 'Type your question'}" autocomplete="off"><button type="submit" class="blue" aria-label="Send">${I.send}</button></form>
+      </section>`;
+    } else {
+      human = `<button class="fab up fade" data-a="tw-fab" aria-label="${s.sent ? 'Open your chat with Carlinda' : 'Ask Carlinda'}">${avatar('C', 44, true)}${s.sent ? '<span class="badge">1</span>' : ''}</button>`;
+    }
+  }
+
+  return `${top()}<div class="x-body tw">
+    ${strip}
+    <div class="steps" aria-label="Progress"><span class="s"><span class="dot">${I.check}</span>Account</span><span class="ln"></span><span class="s"><span class="dot">${I.check}</span>Interests</span><span class="ln"></span><span class="s"><span class="dot">${I.check}</span>Matched</span><span class="ln"></span><span class="s"><span class="dot cur">4</span>Start your externship</span></div>
+    <h1>Your top recommendations</h1>
+    <p class="ctr" style="margin:-4px 16px 14px;font-size:16px;color:#484646">Showing 3 of 20+ projects matched to your interests</p>
+    <div class="cats">
+      <button class="cat"><span class="ic">${I.star}</span>For you</button>
+      <button class="cat on"><span class="ic">${I.spark}</span>Finance</button>
+      <button class="cat"><span class="ic">${I.users}</span>Gaming</button>
+      <button class="cat"><span class="ic">${I.live}</span>Marketing</button>
+    </div>
+    <div class="cards">
+      ${card(true, 'a', 'extern', `<span class="chip">Finance</span><span class="chip">Gaming</span><span style="margin-left:auto">Self-paced</span>`, 'Consumer Insights and Market Intelligence', `<div class="why"><b>Why this one:</b> you picked Finance.</div>`)}
+      ${card(false, 'b', 'beats', `<span class="chip">Finance</span><span style="margin-left:auto;display:inline-flex;gap:8px">${I.cal} 8 weeks · Self-paced</span>`, 'Consumer Insights and Market Intelligence Sprint', `<div class="leave">You leave with <b>A consumer insights deck for Beats</b></div>`)}
+      ${card(false, 'c', 'HP Tech Ventures', `<span class="chip">Financial Modeling &amp; Valuation</span><span class="chip">Finance</span><span style="display:inline-flex;gap:8px">${I.cal} 8 weeks · Self-paced</span>`, 'HP Tech Ventures: VC Deal Sourcing', `<div class="leave">You leave with <b>An investment memo on a real AI startup</b></div>`)}
+    </div>
+    <p class="more">Not seeing the right fit? <button class="x-link" style="text-decoration:none;font-weight:500">Browse all 25 externships</button></p>
+    ${!s.stall && !s.dismissed ? `<p class="ctr fine" style="padding:0 16px 24px">Prototype: Carlinda appears after a 45-second stall. <button class="x-link" data-a="tw-stall">Skip the wait</button></p>` : ''}
+    <div class="sticky">
+      <div class="faces" aria-hidden="true">${avatar('A', 32)}${avatar('M', 32)}${avatar('L', 32)}</div>
+      <div class="claim"><b>3/4</b> of externs <b>find a job outcome</b> within 1 year</div>
+      <div class="fine">$0 today · free until Nov 16 · cancel anytime</div>
+      <button class="x-pill blue" data-a="tw-start">Start $0 trial</button>
+    </div>
+    ${human}
+  </div>`;
+}
+
+// ---------- 2. account + cancel ----------
+function account() {
+  const c = S.cancel;
+  const subRow = c.cancelled
+    ? `<div class="row"><span class="ic">${I.star}</span><div class="tx"><div class="a">Ends Dec 14, 2026</div><div class="b">Status: cancelled. Re-subscribe anytime.</div></div><button class="x-link" style="text-decoration:none;font-weight:500" data-a="noop">Re-subscribe</button></div>`
+    : `<div class="row"><span class="ic ok" style="color:#006e20">${I.check}</span><div class="tx subcols"><div><div class="a">Active</div><div class="b">Status</div></div><div><div class="a">Dec 14, 2026</div><div class="b">Next billing date</div></div></div><button class="x-link cancel" data-a="c-open">Cancel</button></div>`;
+  const callRow = c.booked ? `<div class="x-card callrow fade"><div class="row">${avatar('S', 40, true)}<div class="tx"><div class="a">Call with Satya</div><div class="b">${esc(c.booked)}</div></div><button class="x-link" style="text-decoration:none;font-weight:500" data-a="noop">Reschedule</button></div></div>` : '';
+  const reachRow = c.reachSent && !c.booked ? `<div class="x-card callrow fade"><div class="row">${avatar('S', 40, true)}<div class="tx"><div class="a">Satya is reaching out</div><div class="b">She has your note and emails you by Tue, Nov 11.</div></div></div></div>` : '';
+
+  return `${top()}<div class="x-body">
+    <div class="acct${c.step !== 'account' ? ' blur' : ''}" aria-hidden="${c.step !== 'account'}">
+      <h2>Personal details</h2>
+      <div class="x-card"><div class="row"><span class="ic">JR</span><div class="tx"><div class="a">Jordan Recsqa</div><div class="b">Your name</div></div><span style="color:#1c1b1b">${I.pencil}</span></div></div>
+      <h2>Account details</h2>
+      <div class="x-card">
+        <div class="row"><span class="ic">@</span><div class="tx"><div class="a">jordan.recsqa@gmail.com</div><div class="b">Main email</div></div><span>${I.plus}</span></div>
+        <div class="row"><span class="ic">${I.lock}</span><div class="tx"><div class="a">••••••••</div><div class="b">Password</div></div><span>${I.pencil}</span></div>
+        <div class="row"><span class="ic">${I.globe}</span><div class="tx"><div class="a">You don't have one yet</div><div class="b">Phone number</div></div><span>${I.plus}</span></div>
+      </div>
+      <h2>Subscription</h2>
+      ${callRow}${reachRow}
+      <div class="x-card">${subRow}</div>
+      <div class="pay"><h3>Payment Method</h3><p>Stripe securely processes and stores your payment. Change your card details through the button below.</p><div><button class="x-pill dark" data-a="noop">Change Payment Method</button></div></div>
+      <div class="x-card gift"><div class="art" aria-hidden="true"></div><div><h3>Have a gift code?</h3><p>Redeem it to unlock special access and grow your career with Extern</p><button class="x-pill out" data-a="noop">Redeem</button></div></div>
+    </div>
+    ${cancelDialog()}
+  </div>`;
+}
+
+const REASONS = ["I don't have enough time to participate fully at the moment", 'The subscription is beyond my budget right now', "I didn't find externships suited to my career goals or interests", "The externship experience wasn't what I expected", 'I am facing technical issues', 'Other (Please specify)'];
+const LIKELY = ['Very likely', 'Somewhat likely', 'Neither likely nor unlikely', 'Somewhat unlikely', 'Very unlikely'];
+const SLOTS = [['Tuesday', 'Nov. 11', '10:00 AM'], ['Tuesday', 'Nov. 11', '11:00 AM'], ['Tuesday', 'Nov. 11', '1:00 PM'], ['Tuesday', 'Nov. 11', '3:30 PM'], ['Wednesday', 'Nov. 12', '9:00 AM'], ['Wednesday', 'Nov. 12', '9:30 AM']];
+const slotLabel = i => `${SLOTS[i][0].slice(0, 3)}, ${SLOTS[i][1]} - ${SLOTS[i][2]}`;
+const datebox = (i, d, t) => `<div class="datebox"><div class="d">${i !== null && i !== undefined ? `${SLOTS[i][0]}, <span>${SLOTS[i][1]}</span>` : d}</div><div class="t">${i !== null && i !== undefined ? SLOTS[i][2] : t}</div></div>`;
+
+function cancelDialog() {
+  const c = S.cancel;
+  if (c.step === 'account') return '';
+  const wrap = inner => `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="dlg-t">${inner}</div></div>`;
+  const hd = (title, ico) => `<div class="hd"><div class="hdl">${ico || ''}<h2 id="dlg-t">${title}</h2></div><button class="xbtn" aria-label="Close" data-a="c-close">${I.x}</button></div>`;
+  const ico = (cls, svg) => `<span class="ico ${cls}">${svg}</span>`;
+  const benefit = (bg, icon, a, b) => `<div class="benefit"><span class="ic" style="background:${bg}">${icon}</span><div><div class="a">${a}</div><div class="b">${b}</div></div></div>`;
+  const benefits = `${benefit('#dce1ff', I.cal, 'Early access', 'Upcoming externships with top companies')}${benefit('#fdcfe1', I.lock, 'Exclusive hiring opportunities', 'Roles and referrals with partner companies')}${benefit('#d3caf6', I.users, 'Connections that count', 'Peers, alumni, and industry professionals')}${benefit('#c8ffc1', I.live, 'Live access to Experts', 'Sessions with top industry professionals')}`;
+
+  if (c.step === 's1') {
+    return wrap(`${hd(`Don't lose your momentum - Externs <span style="color:#2550d0">achieve more</span>`, ico('', I.spark))}
+      <div class="band"><span><b>77%</b> of Externs <b>land jobs</b> within 12 months of their Externship</span></div>
+      ${benefits}
+      <div class="ft"><button class="x-pill out" data-a="c-reasons">Continue with cancellation</button><button class="x-pill dark" data-a="c-keep">Keep subscription</button></div>
+      <p class="ctr fine" style="margin:0;font-size:15px">Need help or have questions? <button class="x-link" style="text-decoration:none">Contact us</button></p>`);
+  }
+  if (c.step === 'reasons') {
+    const other = c.reason === 'Other (Please specify)' ? `<input class="x-input" id="c-other" placeholder="Please specify your reason" value="${esc(c.other)}" data-in="c-other">` : '';
+    return wrap(`${hd("What is the primary reason you're cancelling your subscription?", ico('', I.question))}
+      <div role="radiogroup" aria-label="Reason" style="display:flex;flex-direction:column;gap:12px">${REASONS.map(r => `<label class="radio-row${c.reason === r ? ' on' : ''}"><span style="flex:1">${esc(r)}</span><input type="radio" name="reason" value="${esc(r)}" ${c.reason === r ? 'checked' : ''} data-in="c-reason"></label>`).join('')}${other}</div>
+      <div class="ft"><button class="x-pill out" data-a="c-s1">Return</button><button class="x-pill dark" data-a="c-likely" ${c.reason ? '' : 'disabled'}>Continue</button></div>`);
+  }
+  if (c.step === 'talk') {
+    return wrap(`${hd('Would you like to talk it through with our team?', avatar('S', 48, true))}
+      <p class="dp">You can schedule a 15 minutes call with Satya, your Program Manager.</p>
+      <p class="dp">Satya can <b>move you to a lighter plan, pause your membership</b> until you have time, or <b>point you at a program that fits better.</b></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><span class="chip ok">${I.check} Your plan stays active</span><span class="chip">${I.refresh} Cancel anytime after</span></div>
+      <div class="ft"><button class="x-pill out" data-a="c-talk-continue">Continue with cancellation</button><button class="x-pill dark" data-a="c-book">Book a 15min call</button></div>`);
+  }
+  if (c.step === 'book') {
+    return wrap(`${hd('Book a time with Satya', `<span class="ico-pair"><span class="ico">${I.cal}</span>${avatar('S', 32, true)}</span>`)}
+      <div class="slots" role="radiogroup" aria-label="Available times">${SLOTS.map((s, i) => `<button class="slot${c.slot === i ? ' on' : ''}" role="radio" aria-checked="${c.slot === i}" data-a="c-slot" data-i="${i}"><div class="d">${s[0]}, <span>${s[1]}</span></div><div class="t">${s[2]}</div></button>`).join('')}</div>
+      <p class="ctr" style="margin:0;font-size:14px;line-height:22px"><b style="font-weight:500">None of these work?</b><br><span class="fine"><button class="x-link">See more times</button> or <button class="x-link" data-a="c-email">have Satya email you</button> instead</span></p>
+      <div class="ft"><button class="x-pill out" data-a="c-talk">Back</button><button class="x-pill dark" data-a="c-confirmbook" ${c.slot === null ? 'disabled' : ''}>Confirm call</button></div>`);
+  }
+  if (c.step === 'booked') {
+    return wrap(`${hd('Your meeting is booked', ico('ok', I.calcheck))}
+      <div class="x-card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:17px;font-weight:500">Meeting with Satya</div>
+        <div class="fine" style="font-size:14px">A calendar invite and Zoom link are on their way to your email.</div>
+        ${datebox(c.slot)}
+        <div class="dash-div"></div>
+        <p class="ctr fine" style="margin:0">If the call does not change your mind, you can still cancel your subscription.</p>
+      </div>
+      <div class="ft"><button class="x-pill dark" data-a="c-close">Done</button></div>`);
+  }
+  if (c.step === 'email') {
+    return wrap(`${hd('Have Satya email you', avatar('S', 48, true))}
+      <p class="dp">Satya replies within one business day. No pitch. If there is a fix, she offers it.</p>
+      <div class="reach"><div class="q">Anything she should know? <span class="fine" style="font-weight:400">(optional)</span></div><label class="sr" for="c-note">Your note</label><textarea class="x-ta" id="c-note" rows="3" placeholder="In your own words. A person reads this, not a form." data-in="c-note">${esc(c.note)}</textarea></div>
+      <div class="ft"><button class="x-pill out" data-a="c-book">Back</button><button class="x-pill dark" data-a="c-emailsend">Have Satya email me</button></div>`);
+  }
+  if (c.step === 'emailed') {
+    return wrap(`${hd('Satya will email you', ico('ok', I.check))}
+      <div class="queued">${avatar('S', 48, true)}<div class="a">Satya has your note</div><div class="b">Expect her email by Tuesday, Nov. 11. Your plan stays active, and you can still cancel anytime from this page.</div></div>
+      <div class="ft"><button class="x-pill dark" data-a="c-close">Done</button></div>`);
+  }
+  if (c.step === 'likely') {
+    return wrap(`${hd("Do you think you'll resubscribe to Extern in the future?", ico('', I.question))}
+      <div role="radiogroup" aria-label="Likelihood" style="display:flex;flex-direction:column;gap:12px">${LIKELY.map(r => `<label class="radio-row${c.likelihood === r ? ' on' : ''}"><span style="flex:1">${esc(r)}</span><input type="radio" name="likely" value="${esc(r)}" ${c.likelihood === r ? 'checked' : ''} data-in="c-likelihood"></label>`).join('')}</div>
+      <div class="ft"><button class="x-pill out" data-a="${arm === 'T' ? 'c-talk' : 'c-reasons'}">Return</button><button class="x-pill err" data-a="c-confirm" ${c.likelihood ? '' : 'disabled'}>Confirm cancellation</button></div>`);
+  }
+  if (c.step === 'done') {
+    const follow = c.booked
+      ? `<div class="queued">${avatar('S', 48, true)}<div class="a">Satya will still reach out to you</div><div class="b">If you end up changing your mind, you can pick up where you left off with nothing lost.</div>${datebox(c.slot)}</div>`
+      : c.reachSent ? `<div class="queued">${avatar('S', 48, true)}<div class="a">Satya will still reach out to you</div><div class="b">She has your note and emails you by Tuesday, Nov. 11. If you change your mind, you pick up where you left off with nothing lost.</div></div>` : '';
+    return wrap(`${hd('Subscription updated', ico('ok', I.check))}
+      <p class="dp" style="color:#484646">Your membership is active until <b style="color:#1c1b1b">Dec 14, 2026</b>. <b style="color:#1c1b1b">You can re-subscribe anytime</b> to continue your journey with Extern.</p>
+      <p class="dp" style="color:#484646">Until then, your current plan continues as usual, and <b style="color:#1c1b1b">nothing was revoked.</b></p>
+      ${follow}
+      <div class="ft"><button class="x-pill dark" data-a="c-close">Close</button></div>`);
+  }
+  return '';
+}
+
+// ---------- 3. project 1 task ----------
+function project1() {
+  const p = S.project1;
+  const canAsk = p.url.trim().length > 6;
+  const card = arm === 'C' ? '' : (p.requested
+    ? `<section class="hr fade" aria-live="polite"><div class="top"><span class="ico ok">${I.check}</span><div style="flex:1;min-width:0"><div class="a">Review requested</div></div><span class="ipill">${I.info} 1/2 Request left</span></div>
+      <div class="b" style="color:#1c1b1b"><b>Your program manager has been informed.</b> You should receive a reply within two days, by <b>Wed, Nov 11.</b></div>
+      <div class="b" style="color:#1c1b1b">You don't need to wait to continue working.</div>
+      <button class="x-pill out" style="width:100%" data-a="p1-edit">Edit note</button></section>`
+    : `<section class="hr" aria-labelledby="hr-t"><div class="top">${avatar('S', 48, true)}<div style="flex:1;min-width:0"><div class="a" id="hr-t">Want your work reviewed?</div></div><span class="ipill">${I.info} 2 Requests left</span></div>
+      <div class="b" style="color:#1c1b1b">I'm Satya, your Program Manager. I review submissions each week and reply within two days. Tell me what you want my eyes on.</div>
+      <label class="sr" for="p1-note">What should I focus on when reviewing</label><textarea class="x-ta" id="p1-note" rows="2" placeholder="What should I focus on when reviewing? For example: Is my map missing a stakeholder?" data-in="p1-note">${esc(p.note)}</textarea>
+      <button class="x-pill out" style="width:100%" data-a="p1-ask" ${canAsk ? '' : 'disabled'}>Request human review</button>${canAsk ? '' : '<div class="fine ctr">Add your link above first</div>'}</section>`);
+  const modal = p.modal ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="sm-t" style="width:420px">
+      <div class="hd"><div class="hdl"><span class="ico ok">${I.check}</span><h2 id="sm-t">Your responses have been recorded</h2></div><button class="xbtn" aria-label="Close" data-a="p1-close">${I.x}</button></div>
+      <p class="dp">Everything you complete on Extern becomes part of your story. <button class="x-link">Your portfolio awaits you</button></p>
+      ${arm === 'T' && p.requested ? `<div class="dots-div" aria-hidden="true">···</div><div class="queued">${avatar('S', 48, true)}<div class="a">Satya's review is queued</div><div class="b">Expect to get a response by...</div>${datebox(null, 'Wednesday, <span>Nov. 11</span>', '9:30 AM')}</div>` : ''}
+      <div class="ft"><button class="x-pill dark" data-a="p1-close">Continue</button></div></div></div>` : '';
+  return `${top()}<div class="x-body" style="display:flex;flex-direction:column">
+    <div class="task">
+      <button class="back" aria-label="Back">${I.arrowL}</button>
+      <h1>P1.S1.3 Submit Customer Journey Map</h1>
+      <div><label class="q" for="p1-url">1. Submit the link to the ideal customer journey map</label><input class="x-input" id="p1-url" placeholder="https://" value="${esc(p.url)}" data-in="p1-url" ${p.requested ? 'readonly' : ''}></div>
+      ${card}
+    </div>
+    <div class="footbar"><button class="x-pill out" data-a="noop">${I.chevL} Previous</button><span class="sp"></span><span class="cnt">4 of 4</span><span class="sp"></span><button class="x-pill dark" data-a="p1-next" ${canAsk ? '' : 'disabled'}>Next ${I.chevR}</button></div>
+    ${modal}
+  </div>`;
+}
+
+// ---------- 4. portfolio editor ----------
+function portfolio() {
+  const f = S.portfolio;
+  const dlg = arm === 'T' && f.open ? (f.requested
+    ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="pf-t">
+        <div class="hd"><div class="hdl"><span class="ico ok">${I.check}</span><h2 id="pf-t">Review requested</h2></div><button class="xbtn" aria-label="Close" data-a="pf-close">${I.x}</button></div>
+        <p class="dp">You can keep editing your portfolio freely, I'll be able to see whatever is in here when reviewing.</p>
+        <div class="queued">${avatar('S', 48, true)}<div class="a">Satya's review is queued</div><div class="b">Expect to get a response by...</div>${datebox(null, 'Thursday, <span>Nov. 13</span>', '9:30 AM')}</div>
+        <div class="ft"><button class="x-pill dark" data-a="pf-close">Close</button></div></div></div>`
+    : `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="pf-t">
+        <div class="hd"><div class="hdl">${avatar('S', 48, true)}<h2 id="pf-t">Have a human review your portfolio</h2></div><button class="xbtn" aria-label="Close" data-a="pf-close">${I.x}</button></div>
+        <p class="dp">I'm Satya, your Program Manager. I go through a handful of portfolios each week, and send notes within two days.</p>
+        <button class="x-pill blue" style="width:100%" data-a="pf-ask">Ask for a review</button>
+        <div class="divider"></div>
+        <p class="ctr fine" style="margin:0">You have 1 available request</p></div></div>`) : '';
+  const fab = arm === 'T' ? `<button class="fab pf-fab" data-a="pf-open" aria-label="${f.requested ? 'Your review request' : 'Have a human review your portfolio'}">${avatar('S', 44, true)}${f.requested ? `<span class="badge ok">${I.check}</span>` : ''}</button>` : '';
+  const acc = (icon, a, pct, b, ok) => `<div class="acc"><span class="ic">${icon}</span><div><div class="a">${a} ${pct ? `<span class="pct${ok ? ' ok' : ''}">${pct}</span>` : ''}</div><div class="b">${b}</div></div><span class="car">${I.chevD}</span></div>`;
+  const rail = `<aside class="rail">
+    <div class="pfbanner phone" style="margin:-20px -16px 0;padding:12px 16px"><div><div class="a">Your portfolio is currently private</div><div class="b">${I.globe} extern.com/portfolios/<span>yourname</span></div></div><span class="toggle"><i></i>Private</span></div>
+    <h2>Portfolio Editor <span class="chip info" style="font-weight:500">Beta</span></h2>
+    <p class="sub">Build and customize your portfolio</p>
+    <section class="rcard"><div class="top"><span class="ring"><span>33%</span></span><div><div class="a">Get it ready for recruiters</div><div class="b">Continue following the steps to strengthen your portfolio</div></div></div>
+      <div class="ritem"><div style="flex:1"><div class="a">Add your first project</div><div class="b">Projects are one of the first things recruiters look for.</div></div>${I.chevR}</div>
+      <div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div></section>
+    ${acc(I.spark, 'Style', '', 'Adjust the look and feel')}
+    ${acc(I.star, 'Professional details', '', 'Adjust your title, skills and more')}
+    ${acc(I.chat, 'Contact information', '33%', 'Let recruiters reach out to you')}
+    ${acc(I.pencil, 'Hero section', '33%', 'Set your headline &amp; statement')}
+    ${acc(I.cal, 'Works', '33%', 'Showcase your abilities')}
+    ${acc(I.users, 'Personal details', '33%', 'Tell your story and background')}
+    <div class="pfmode" aria-hidden="true"><span>Preview Mode</span><span class="on">Edit mode</span></div>
+  </aside>`;
+  const main = `<div class="pfmain">
+    <div class="pfbanner"><div><div class="a">Your portfolio is currently private</div><div class="b">${I.globe} extern.com/portfolios/<span>yourname</span> ${I.pencil}</div></div>${f.requested ? `<span class="chip info">${avatar('S', 24)} Review requested</span>` : ''}<span class="toggle"><i></i>Private</span></div>
+    <div class="preview">
+      <div class="pv-top"><div><div class="n">Jordan Recsqa</div><div class="r">Role</div></div><div class="pv-nav"><span class="on">Home</span><span>Work</span><span>About</span></div><span class="x-link">your@email.com</span></div>
+      <div class="pv-hero"><div><span class="chip" style="height:30px;padding:0 12px 0 4px">${avatar('JR', 24)} @jordan-recsqa</span><h1>Early-career researcher focused on customer experience in clinical settings</h1><p>I worked on an AI consumer insights and market intelligence externship with HP Tech Ventures, studying how business processes shape clinical customer experience.</p><button class="x-pill dark">View my work</button></div><div class="shot"><span style="width:32px;height:32px;border-radius:999px;background:#dce1ff;display:inline-flex;align-items:center;justify-content:center">${I.plus}</span><b style="font-weight:500">Add headshot image</b><span style="color:#484646;font-size:12px">JPEG or PNG · less than 4MB</span></div></div>
+      <div class="pv-work"><h2>Work samples</h2><p>An HP Tech Ventures externship that investigated the interaction between business processes and patient or clinical customer experience, using AI consumer insights and market research methods.</p>
+        <div class="pv-proj"><div class="img" aria-hidden="true"></div><div><div class="meta">HP Tech Ventures · Nov 2026 · <span class="chip ok" style="height:20px">${I.check} Verified by Extern</span></div><h3>AI Consumer Insights and Market Intelligence Externship</h3><div style="font-size:15px;color:#484646;line-height:22px">An AI consumer insights and market intelligence externship with HP Tech Ventures focused on examining how business processes affect customer experience in clinical settings.</div><div class="tags"><span class="chip">Market Research</span><span class="chip">AI Agent Development</span><span class="chip">Business Development</span><span class="chip">Web Scraping &amp; Data Extraction</span></div></div></div>
+      </div>
+    </div>
+  </div>`;
+  return `${top()}<div class="x-body pf">${rail}${main}${fab}${dlg}</div>`;
+}
+
+// ---------- 5. completion dashboard ----------
+function completion() {
+  const d = S.completion;
+  const peers = arm !== 'T' ? '' : d.joined
+    ? `<div class="peers fade"><div class="a">Thank you for supporting Extern!</div><div class="b">Satya will add you to the <b>Nov. 24</b> cohort's project channel the week it starts. <b>You will also receive a one-page guide on what helps most.</b></div><div class="acts"><button class="x-pill out blue-out" style="width:100%" data-a="d-undo">I've changed my mind</button></div></div>`
+    : `<div class="peers"><div class="a">Help your peers ${I.spark4} Starting on Nov, 24</div><div class="b">Having completed this program, you can help new externs by answering questions on Slack or joining live sessions.</div><div class="acts"><button class="x-pill out blue-out" data-a="d-faq">FAQ</button><button class="x-pill blue" style="flex:1" data-a="d-open">Help the next cohort</button></div></div>`;
+  const explorePrimary = arm !== 'T' || d.joined;
+  const congrats = `<section class="congrats">
+    <div class="top"><h2>Congratulations!</h2><span class="chip ok">${I.check} Complete</span></div>
+    <p>Your work is being reviewed, and your professional award will be sent to your email soon. <button class="x-link">Learn more</button></p>
+    <div class="bar2"></div><div class="legend"><span>● Complete <span style="color:#adaaaa">● Pending</span></span><span>100% Complete</span></div>
+    <div class="ready"><div class="a">Ready for more?</div><div class="b">Keep up the momentum by exploring your next program</div><button class="x-pill ${explorePrimary ? 'dark' : 'out'}" style="width:100%" data-a="noop">Explore programs</button></div>
+    ${peers}
+  </section>`;
+  const opt = (v, a, mins, b) => `<label class="opt${d.choice === v ? ' on' : ''}"><div style="flex:1"><div class="a">${a}${mins ? ` <span class="mins">• ${mins}</span>` : ''}</div><div class="b">${b}</div></div><input type="radio" name="help" value="${v}" ${d.choice === v ? 'checked' : ''} data-in="d-choice"></label>`;
+  const modal = d.modal ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="d-t">
+      <div class="hd"><div class="hdl"><span class="ico">${I.hand}</span><h2 id="d-t">How would you like to support the next cohort?</h2></div><button class="xbtn" aria-label="Close" data-a="d-close">${I.x}</button></div>
+      <p class="dp">Helping counts toward your Extern record. Satya will note it on your certificate page, and you can stop anytime by replying to her email.</p>
+      <div role="radiogroup" aria-label="How you want to help" style="display:flex;flex-direction:column;gap:10px">
+        ${opt('channel', 'Answering questions on Slack', '30mins', 'About 30 minutes a week, for 4 weeks.')}
+        ${opt('hour', 'Support during office hours', '60mins', 'Join a live session with Satya &amp; share how you approached your project.')}
+        ${opt('both', 'Both of them', '', 'We appreciate it! It really helps us optimize the entire cohort experience')}
+      </div>
+      <div class="dash-div"></div>
+      <div class="ft"><button class="x-pill out" data-a="d-close">Maybe another time</button><button class="x-pill dark" data-a="d-join" ${d.choice ? '' : 'disabled'}>Count me in</button></div></div></div>` : '';
+  const thanks = d.thanks ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="dt-t">
+      <div class="hd"><div class="hdl"><span class="ico" style="background:#d3caf6">${I.heart}</span><h2 id="dt-t">We really appreciate it!</h2></div><button class="xbtn" aria-label="Close" data-a="d-thanks-close">${I.x}</button></div>
+      <p class="dp">Satya will add you to the <b>Nov. 24</b> cohort's project channel the week it starts. <b>You will also receive a one-page guide on what helps most.</b></p>
+      <div class="dash-div"></div>
+      <div class="ft"><button class="x-pill dark" data-a="d-thanks-close">Close</button></div></div></div>` : '';
+  const faq = d.faq ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="df-t">
+      <div class="hd"><div class="hdl"><span class="ico">${I.question}</span><h2 id="df-t">Helping the next cohort</h2></div><button class="xbtn" aria-label="Close" data-a="d-faq-close">${I.x}</button></div>
+      <div class="faq"><div class="q">What am I getting from it?</div><div class="a">A "Cohort helper" line on your certificate page, a reference from Satya on request, and first access to new externships before they open.</div></div>
+      <div class="faq"><div class="q">How much time is it?</div><div class="a">About 30 minutes a week for 4 weeks on Slack, or one 60-minute office hour on Zoom. You pick, and you pick when.</div></div>
+      <div class="faq"><div class="q">What if I can't keep it up?</div><div class="a">Reply to Satya's email and you are out, no questions. Nothing on your record changes.</div></div>
+      <div class="faq"><div class="q">Do I need to know everything?</div><div class="a">No. You did the work four weeks ago. That is the help Satya cannot give 48 people at once.</div></div>
+      <div class="ft"><button class="x-pill out" data-a="d-faq-close">Close</button><button class="x-pill blue" data-a="d-faq-help">Help the next cohort</button></div></div></div>` : '';
+  return `${top()}<div class="x-body"><div class="dash">
+    <div>
+      <div class="hero-card"><h1>AI Consumer Insights and Market Intelligence Externship</h1><span class="logo">HP Tech<br>Ventures</span></div>
+      <div class="facts"><div class="fact">${avatar('S', 40)}<div><b>Satya</b><span>Program manager</span></div></div><div class="fact"><span class="ic">${I.live}</span><div><b>Nov 13, 2026</b><span>Live sessions start</span></div></div><div class="fact"><span class="ic">${I.cal}</span><div><b>4 Weeks</b><span>Program duration</span></div></div></div>
+      <div class="tabs2"><span class="on">Projects</span><span>Live Sessions</span><span>Recordings</span></div>
+      ${congrats}
+      <p style="font-size:17px;margin:0 0 16px">Your space to view and complete the projects for this program.</p>
+      <div class="proj"><span class="num">⌾</span><span class="a">Project 0: Orientation</span>${I.chevD}</div>
+      <div class="proj"><span class="num">1</span><span class="a">Project 1: Know How Business Processes Impact Customer Experience</span>${I.chevD}</div>
+    </div>
+    <div class="side">
+      <div class="tracker"><div><span class="chip ok">Completed</span>${d.joined ? ` <span class="chip info">Cohort helper</span>` : ''}</div><div class="a">Congratulations, you did it 👏</div><div class="b">Every required module is complete. Your certificate and portfolio entry are ready.</div><div class="bar2"></div><div class="legend"><span>● Complete</span><span>100% Complete</span></div></div>
+    </div>
+  </div>${modal}${thanks}${faq}</div>`;
+}
+
+// ---------- 6. trial catalog + pick help ----------
+const PICKS = ['Consumer Insights at Beats', 'VC Deal Sourcing at HP Tech Ventures', 'Growth Marketing at Wayfair', 'AI Product Research at Hugging Face', 'Data Analytics at Cloudflare', 'Gaming Market Analysis'];
+const GOALS = [['job', 'Land a job in this field'], ['explore', 'Find out if this field is for me'], ['portfolio', 'Something real for my resume'], ['skill', 'Learn one specific skill']];
+function pickHelp() {
+  const k = S.pick;
+  const card = arm !== 'T' || k.dismissed ? '' : k.sent
+    ? `<div class="pick sent fade" role="status">${avatar('C', 40, true)}<div class="t"><div class="a">Sent to Carlinda.</div><div class="b">She replies by email by tomorrow 9 AM ET with one pick and why. Keep browsing, or <button class="x-link" data-a="pk-open">add to your note</button>. Enrolling first is fine too.</div></div></div>`
+    : `<div class="pick fade">${avatar('C', 40, true)}<div class="t"><div class="a">Not sure which one? Ask Carlinda.</div><div class="b">Tell her what you want out of this and which ones you are weighing. She has matched a few hundred students and replies by email by tomorrow morning with one pick and why.</div></div><button class="x-pill blue" data-a="pk-open">Help me pick</button><button class="xbtn" aria-label="Dismiss" data-a="pk-dismiss">${I.x}</button></div>`;
+  const cc = (cls, logo, tags, title, leave, weeks) => `<article class="rc">
+    <div class="img ${cls}"><div class="logo">${logo}</div></div>
+    <div class="bd"><div class="tags">${tags}</div><h3>${title}</h3><div class="leave">You leave with <b>${leave}</b></div>
+      <div class="lk"><button class="x-link">Learn more</button><button class="x-link b">See first week</button></div></div>
+    <div class="ft"><span style="display:inline-flex;gap:6px;align-items:center">${I.cal} ${weeks} weeks · Self-paced</span><button class="x-pill out sm" data-a="pk-enroll">Enroll</button></div>
+  </article>`;
+  const dlg = k.open ? `<div class="ovl"><div class="dlg fade" role="dialog" aria-modal="true" aria-labelledby="pk-t">
+    <div class="hd"><h2 id="pk-t">Help me pick</h2><button class="xbtn" aria-label="Close" data-a="pk-close">${I.x}</button></div>
+    <div class="person">${avatar('C', 40, true)}<div><div class="a">Carlinda · Student success</div><div class="b">Two quick questions, plus anything you want her to know. One pick and the reason, by email, by tomorrow 9 AM ET.</div></div></div>
+    <div class="q"><div class="ql">What do you want out of this?</div><div class="gchips" role="radiogroup" aria-label="Goal">${GOALS.map(([v, l]) => `<button type="button" role="radio" aria-checked="${k.goal === v}" class="gchip${k.goal === v ? ' on' : ''}" data-a="pk-goal" data-v="${v}">${l}</button>`).join('')}</div></div>
+    <div class="q"><div class="ql">Which ones are you weighing? <span class="fine">Optional</span></div><div class="gchips" aria-label="Externships you are weighing">${PICKS.map(x => `<button type="button" aria-pressed="${k.between.includes(x)}" class="gchip${k.between.includes(x) ? ' on' : ''}" data-a="pk-between" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div></div>
+    <div class="q"><label class="ql" for="pk-note">Anything else she should know? <span class="fine">Optional</span></label><textarea class="x-ta" id="pk-note" rows="3" data-in="pk-note" placeholder="Where you are in school or work, how much time you have, what you are hoping for">${esc(k.note)}</textarea></div>
+    <p class="fine" style="margin:0">Goes to Carlinda only. She reads every one herself and replies to jor•••@gmail.com.</p>
+    <div class="ft"><button class="x-pill out" data-a="pk-close">Not now</button><button class="x-pill blue" data-a="pk-ask" ${k.goal ? '' : 'disabled'}>Ask Carlinda</button></div></div></div>` : '';
+  return `${top()}<div class="x-body"><div class="catp">
+    <div class="trialbar"><span class="chip info">Free trial</span><span>5 days left, free until Nov 16. Enroll in one externship to start Project 1.</span></div>
+    <div class="cat-hd"><h1>Explore externships</h1><p>25 externships across 8 fields. Self-paced, 4 to 8 weeks, included with your membership.</p></div>
+    <div><label class="sr" for="pk-s">Search externships</label><input id="pk-s" class="x-input" placeholder="Search by company, field, or skill" autocomplete="off"></div>
+    <div class="filt" aria-label="Fields"><button class="fchip on">All</button><button class="fchip">Finance</button><button class="fchip">Marketing</button><button class="fchip">Data</button><button class="fchip">Product</button><button class="fchip">Consulting</button><button class="fchip">Tech</button></div>
+    ${card}
+    <div class="cgrid">
+      ${cc('b', 'beats', `<span class="chip">Finance</span><span class="chip">Marketing</span>`, 'Consumer Insights and Market Intelligence Sprint', 'A consumer insights deck for Beats', 8)}
+      ${cc('c', 'HP Tech Ventures', `<span class="chip">Finance</span><span class="chip">VC</span>`, 'HP Tech Ventures: VC Deal Sourcing', 'An investment memo on a real AI startup', 8)}
+      ${cc('d', 'Wayfair', `<span class="chip">Marketing</span>`, 'Growth Marketing: Paid Social Experiments', 'A tested ad set and a results memo', 6)}
+      ${cc('e', 'Hugging<br>Face', `<span class="chip">Product</span><span class="chip">AI</span>`, 'AI Product Research: Model Evaluation', 'A model comparison report', 6)}
+      ${cc('f', 'Cloudflare', `<span class="chip">Data</span>`, 'Data Analytics: Network Traffic Insights', 'A dashboard and a written readout', 4)}
+      ${cc('a', 'extern', `<span class="chip">Gaming</span><span class="chip">Finance</span>`, 'Gaming Market Analysis', 'A market sizing model for a studio', 4)}
+    </div>
+  </div>${dlg}</div>`;
+}
+
+// ---------- 7. inactivity check-in ----------
+function inactivity() {
+  const n = S.inact;
+  let card = '';
+  if (arm === 'T') {
+    if (n.sent) card = `<div class="checkin done fade" role="status">${avatar('S', 48, true)}<div class="tx"><h2>Satya has it.</h2><p>She replies by email within a day, usually with one concrete next step. Project 1 waits where you left it.</p><div class="acts"><button class="x-pill dark" data-a="in-resume">Pick up Project 1</button><button class="x-link quiet" data-a="in-edit">Edit what I wrote</button></div></div></div>`;
+    else if (n.answer === 'busy') card = `<div class="checkin done fade" role="status">${avatar('S', 48, true)}<div class="tx"><h2>Got it. No nudges for two weeks.</h2><p>Project 1 is one step in and most people finish it in about 90 minutes. It is here whenever you are.</p><div class="acts"><button class="x-pill dark" data-a="in-resume">Pick up where I left off</button><button class="x-link quiet" data-a="in-undo">Actually, I am stuck</button></div></div></div>`;
+    else if (n.answer === 'stuck') card = `<div class="checkin fade">${avatar('S', 48, true)}<div class="tx"><h2>What is in the way?</h2><p>One line is enough. Satya reads it herself and replies by email within a day.</p><label><span class="sr">What is in the way</span><textarea class="x-ta" rows="3" id="in-note" data-in="in-note" placeholder="The step you are on, what you tried, or what you are not sure about">${esc(n.note)}</textarea></label><div class="acts"><button class="x-pill blue" data-a="in-send" ${n.note.trim() ? '' : 'disabled'}>Have Satya reach out</button><button class="x-link quiet" data-a="in-undo">Back</button></div></div></div>`;
+    else if (!n.dismissed) card = `<div class="checkin fade">${avatar('S', 48, true)}<div class="tx"><h2>Stuck, or just busy?</h2><p>You have been away 9 days, Jordan. Project 1 is one step in. Either answer is fine. Satya just wants to know which, then she can help or leave you be.</p><div class="acts"><button class="x-pill blue" data-a="in-stuck">Stuck on something</button><button class="x-pill out" data-a="in-busy">Just busy</button><button class="x-link quiet" data-a="in-email">See the email that sent you here</button></div></div><button class="xbtn" aria-label="Dismiss" data-a="in-dismiss">${I.x}</button></div>`;
+  }
+  const email = n.email ? `<div class="ovl"><div class="dlg email fade" role="dialog" aria-modal="true" aria-labelledby="in-et">
+    <div class="hd"><div><div class="from">Satya at Extern · to Jordan · Nov 11, 8:02 AM</div><h2 id="in-et">Stuck, or just busy?</h2></div><button class="xbtn" aria-label="Close" data-a="in-close">${I.x}</button></div>
+    <div class="body"><p>Hi Jordan,</p><p>You started Project 1 of the HP Tech Ventures externship on Nov 2 and I have not seen you since. That is fine. I just want to know which of these it is. Then I can help, or leave you alone.</p>
+    <p><button class="x-link" data-a="in-stuck">I am stuck on something</button><br><button class="x-link" data-a="in-busy">I am just busy, check back in two weeks</button></p>
+    <p>Either one is a click. If you are stuck, tell me what is in the way and I will reply myself within a day.</p><p>Satya<br><span class="fine">Program Manager, HP Tech Ventures externship</span></p></div>
+    <p class="fine" style="margin:0">Prototype: this is the day-9 email. Either link lands on the dashboard with that answer already given.</p></div></div>` : '';
+  return `${top()}<div class="x-body"><div class="dash">
+    <div>
+      <div class="hero-card"><h1>AI Consumer Insights and Market Intelligence Externship</h1><span class="logo">HP Tech<br>Ventures</span></div>
+      <div class="facts"><div class="fact">${avatar('S', 40)}<div><b>Satya</b><span>Program Manager</span></div></div><div class="fact"><span class="ic">${I.live}</span><div><b>Nov 13, 2026</b><span>Next live session</span></div></div><div class="fact"><span class="ic">${I.cal}</span><div><b>4 Weeks</b><span>Program duration</span></div></div></div>
+      <div class="tabs2"><span class="on">Projects</span><span>Live Sessions</span><span>Recordings</span></div>
+      ${card}
+      <p style="font-size:17px;margin:0 0 16px">Your space to view and complete the projects for this program.</p>
+      <div class="proj"><span class="num">⌾</span><span class="a">Project 0: Orientation</span>${I.chevD}</div>
+      <div class="proj todo"><span class="num">1</span><span class="a">Project 1: Know How Business Processes Impact Customer Experience</span><span class="chip info">Step 1 of 4</span>${I.chevD}</div>
+      <div class="proj lock"><span class="num">2</span><span class="a">Project 2: Map the Customer Journey</span>${I.lock}</div>
+    </div>
+    <div class="side">
+      <div class="tracker"><div><span class="chip info">In progress</span></div><div class="a">Project 1, step 1 of 4</div><div class="b">Last active Nov 2. Most externs finish Project 1 in about 90 minutes.</div><div class="bar2 p25"></div><div class="legend"><span>● In progress</span><span>25% complete</span></div>
+        <div class="ready"><div class="a">Next up</div><div class="b">P1.S1.2 Sketch the current process for one customer</div><button class="x-pill dark" data-a="in-resume">Continue</button></div></div>
+    </div>
+  </div>${email}</div>`;
+}
+
+// ---------- notes panel ----------
+const NOTES = {
+  trial: { title: 'Trial wall: the moment of doubt', hyp: 'A named person offered at the trial wall gets more students to ask something than the webinar invite gets to save a spot, and asking does not lower trial starts.', test: ['Wait, or click "Skip the wait" to trigger the 45-second stall. Carlinda opens as a sheet.', 'Ask Carlinda opens the chat. Tap a question or type one, and send.', 'Minimize with the X. Carlinda stays reachable as the floating avatar.', 'Flip to Control to see the webinar strip in the same moment.'], yes: 'Asks per 100 sheets shown above the webinar\'s 1 in 28. Trials per arm not lower.' },
+  cancel: { title: 'Cancel: save the subscription', hyp: 'A person offered after the reason saves more subscriptions than the benefits pitch alone, and what people write tells us why they leave.', test: ['Click Cancel on the subscription row. Step 1 is today\'s benefits pitch, step 2 the reason.', 'Step 3 offers Satya. Book a 15min call, pick a slot, confirm. The account page shows the call.', 'Or "have Satya email you" under the slots: a note and a reach-out, no meeting.', 'Continue with cancellation instead. The cancel-success screen carries Satya\'s follow-up.', 'Flip to Control for today\'s flow.'], yes: '1 in 10 cancellers books or writes. Saves at 30 days above control.' },
+  project1: { title: 'Project 1: not alone in the work', hyp: 'Students submitting their first real deliverable want a human to look at it, and asking makes them more likely to finish Project 1.', test: ['Paste any link in the field. The ask unlocks.', 'Write what you want eyes on and request the review. The card flips and the requests-left pill updates.', 'Click Next. The success sheet shows Satya\'s queued review and the reply date.'], yes: '1 in 20 submitters asks. What they write names a real need. P1 at 30 days above control.' },
+  portfolio: { title: 'Portfolio: the moment of self-presentation', hyp: 'Students deciding how to present themselves to recruiters want a person, not a checklist, to look at the result.', test: ['Satya sits in the floating avatar, bottom right, next to the Preview and Edit toggle on phone.', 'Tap it. One button: Ask for a review. No form.', 'The sheet becomes the queued state with the reply date. Close, and the avatar shows the check.'], yes: '1 in 20 editor visitors asks. Publish and share rates among askers above non-askers.' },
+  completion: { title: 'Completion: recruiting the next humans', hyp: 'Completers will give time to the next cohort if asked at the moment they finish. This is the only surface that creates supply of humans rather than demand.', test: ['The Help your peers box sits inside the completion card. FAQ answers "what am I getting from it?"', 'Help the next cohort opens three ways to help. Pick one and Count me in.', 'A thank-you sheet confirms. The box changes to the thanked state with "I\'ve changed my mind", and Explore programs becomes primary.'], yes: '1 in 10 completers says yes. Volunteers become the humans behind the Project 1 and cancel treatments.' },
+  pick: { title: 'Trial period: help choosing', hyp: 'Trialing students who have not enrolled are stuck on the choice, not the price. A named person who picks for them gets more of them into Project 1 before the trial ends.', test: ['The card sits above the catalog for a trialing account with no enrollment.', 'Click Help me pick. Choose a goal, tap the ones you are weighing, add a line.', 'Ask Carlinda. The card changes to the sent state and the catalog stays open.', 'Flip to Control for today\'s catalog.'], yes: '1 in 15 trialing catalog visitors asks. Enrollment within 48 hours among askers above non-askers. Trial-to-paid not lower.' },
+  inactivity: { title: 'Inactivity: a person reaches out first', hyp: 'A student who went quiet after starting Project 1 will tell a person whether they are stuck or busy, and the stuck ones come back when someone replies.', test: ['This is the dashboard after 9 days away. The email that sent them here is behind the link.', 'Click Stuck on something, write one line, and have Satya reach out.', 'Or click Just busy. The card snoozes for two weeks.', 'Either way the dashboard carries the answer. Flip to Control for today\'s return visit.'], yes: '1 in 5 returning inactive students answers. Stuck notes name a real blocker. Week-2 activity among answerers above control.' },
+};
+function renderNotes() {
+  const n = NOTES[flow];
+  $('#notes').innerHTML = `<h2>What this tests</h2><h3>${n.title}</h3><p>${n.hyp}</p>
+    <h2>Try it</h2><ul>${n.test.map(t => `<li>${t}</li>`).join('')}</ul>
+    <h2>Yes looks like</h2><p>${n.yes}</p>
+    <h2>Events fired</h2><div class="log">${log.length ? log.map(l => `<div><time>${l.t}</time><b>${l.name}</b><i>${esc(l.props)}</i></div>`).join('') : '<span class="empty">Interact with the screen. Each analytics event the build would send shows here.</span>'}</div>`;
+}
+
+// ---------- render + actions ----------
+const RENDER = { trial: trialWall, cancel: account, project1: project1, portfolio: portfolio, completion: completion, pick: pickHelp, inactivity: inactivity };
+let hadDialog = false;
+function render(keepFocus) {
+  const stage = $('#stage');
+  const active = document.activeElement && document.activeElement.id;
+  const sel = document.activeElement && document.activeElement.selectionStart;
+  const scroll = stage.scrollTop;
+  stage.innerHTML = RENDER[flow]();
+  stage.scrollTop = scroll;
+  if (keepFocus && active) { const el = $('#' + active); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
+  const m = $('#tw-msgs'); if (m) m.scrollTop = m.scrollHeight;
+  const dlg = stage.querySelector('.dlg, .sheet');
+  if (dlg && !hadDialog && !keepFocus) { dlg.setAttribute('tabindex', '-1'); dlg.focus({ preventScroll: true }); }
+  hadDialog = !!dlg;
+  renderNotes();
+}
+function renderBar() {
+  $('#tabs').innerHTML = FLOWS.map(f => `<button class="tab" role="tab" aria-selected="${f.id === flow}" data-flow="${f.id}">${f.label}</button>`).join('');
+  $('#armC').setAttribute('aria-pressed', arm === 'C'); $('#armT').setAttribute('aria-pressed', arm === 'T');
+  $('#devD').setAttribute('aria-pressed', device === 'D'); $('#devP').setAttribute('aria-pressed', device === 'P');
+  $('#stage').classList.toggle('phone', device === 'P');
+}
+function setFlow(id) { flow = id; if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); clearTimeout(stallTimer); if (flow === 'trial' && !S.trial.stall) stallTimer = setTimeout(() => { if (!S.trial.stall) { S.trial.stall = true; if (arm === 'T') S.trial.sheet = 'intro'; ev(arm === 'T' ? 'hc_intro_shown' : 'hc_strip_shown', { arm, trigger: 'stall_45s' }); render(); } }, 45000); if (flow === 'pick' && arm === 'T' && !S.pick.shown) { S.pick.shown = true; ev('hc_pick_card_shown', { trigger: 'trial_no_enrollment' }); } if (flow === 'inactivity' && arm === 'T' && !S.inact.shown) { S.inact.shown = true; ev('hc_checkin_shown', { trigger: 'inactive_9d', via: 'email_click' }); } renderBar(); render(); }
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-flow]'); if (b) setFlow(b.dataset.flow); });
+$('#armC').onclick = () => { arm = 'C'; renderBar(); render(); };
+$('#armT').onclick = () => { arm = 'T'; renderBar(); render(); };
+$('#devD').onclick = () => { device = 'D'; renderBar(); render(); };
+$('#devP').onclick = () => { device = 'P'; renderBar(); render(); };
+$('#reset').onclick = () => { S = fresh(); log.length = 0; setFlow(flow); };
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const c = S.cancel, p = S.project1, d = S.completion, s = S.trial, k = S.pick, n = S.inact; let hit = true;
+  if (s.sheet) s.sheet = null; else if (c.step !== 'account') c.step = 'account'; else if (p.modal) p.modal = false; else if (d.modal) d.modal = false; else if (d.thanks) d.thanks = false; else if (d.faq) d.faq = false; else if (S.portfolio.open) S.portfolio.open = false; else if (k.open) k.open = false; else if (n.email) n.email = false; else hit = false;
+  if (hit) { ev('dialog_dismiss', { via: 'escape' }); render(); }
+});
+window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (FLOWS.some(f => f.id === h) && h !== flow) setFlow(h); });
+
+$('#stage').addEventListener('input', e => {
+  const k = e.target.dataset.in; if (!k) return;
+  const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  const c = S.cancel, p = S.project1, f = S.portfolio, d = S.completion;
+  const rerender = () => render(true);
+  switch (k) {
+    case 'c-reason': c.reason = v; ev('cancel_reason_select', { reason: v.slice(0, 24) }); rerender(); break;
+    case 'c-other': c.other = v; break;
+    case 'c-note': c.note = v; if (v.length === 1) ev('hc_cancel_note_started'); break;
+    case 'c-likelihood': c.likelihood = v; rerender(); break;
+    case 'p1-url': p.url = v; if (v.length === 1) ev('substep_answer_started'); rerender(); break;
+    case 'p1-note': p.note = v; if (v.length === 1) ev('hc_review_note_started', { surface: 'project1' }); break;
+    case 'pf-note': f.note = v; if (v.length === 1) ev('hc_review_note_started', { surface: 'portfolio' }); break;
+    case 'd-choice': d.choice = v; ev('hc_help_option', { choice: v }); rerender(); break;
+    case 'pk-note': S.pick.note = v; if (v.length === 1) ev('hc_pick_note_started'); break;
+    case 'in-note': { const was = S.inact.note.trim().length > 0; S.inact.note = v; if (v.length === 1) ev('hc_checkin_note_started'); if (was !== (v.trim().length > 0)) rerender(); break; }
+  }
+});
+$('#stage').addEventListener('submit', e => {
+  if (e.target.dataset.f === 'tw-send') { e.preventDefault(); const q = $('#tw-q').value.trim(); if (!q) return; sendQ(q); }
+});
+function sendQ(q) { const s = S.trial; s.msgs.push({ who: 'me', text: q }); const first = !s.sent; s.sent = true; ev(first ? 'hc_ask_sent' : 'hc_ask_followup', { surface: 'trial_wall', chars: q.length }); render(); }
+
+$('#stage').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a; const s = S.trial, c = S.cancel, p = S.project1, f = S.portfolio, d = S.completion;
+  switch (a) {
+    case 'noop': ev('click', { target: b.textContent.trim().slice(0, 30) }); break;
+    // trial wall
+    case 'tw-stall': s.stall = true; if (arm === 'T') s.sheet = 'intro'; ev(arm === 'T' ? 'hc_intro_shown' : 'hc_strip_shown', { arm, trigger: 'stall_45s' }); break;
+    case 'tw-dismiss': s.dismissed = true; ev('hc_strip_dismiss', { arm }); break;
+    case 'tw-webinar': ev('webinar_save_spot_click'); s.dismissed = true; break;
+    case 'tw-intro-ask': s.sheet = 'chat'; ev('hc_ask_open', { surface: 'trial_wall', from: 'intro' }); break;
+    case 'tw-fab': s.sheet = 'chat'; ev('hc_ask_open', { surface: 'trial_wall', from: 'fab' }); break;
+    case 'tw-min': ev('hc_ask_minimize', { from: s.sheet, sent: s.sent }); s.sheet = null; break;
+    case 'tw-chip': ev('hc_ask_chip', { q: b.dataset.q }); sendQ(b.dataset.q); return;
+    case 'tw-start': ev('trial_start_click', { arm, asked: s.sent }); break;
+    // cancel
+    case 'c-open': c.step = 's1'; ev('cancel_flow_open', { arm }); break;
+    case 'c-close': c.step = 'account'; ev('cancel_flow_close'); break;
+    case 'c-keep': c.step = 'account'; ev('cancel_keep_click', { arm }); break;
+    case 'c-s1': c.step = 's1'; break;
+    case 'c-reasons': c.step = 'reasons'; ev('cancel_continue_click', { from: 's1' }); break;
+    case 'c-likely': ev('cancel_reason_submit', { reason: c.reason.slice(0, 24) }); if (arm === 'T') { c.step = 'talk'; ev('hc_talk_shown'); } else c.step = 'likely'; break;
+    case 'c-talk': c.step = 'talk'; break;
+    case 'c-talk-continue': c.step = 'likely'; ev('hc_talk_decline'); break;
+    case 'c-book': c.step = 'book'; ev('hc_call_cta_click'); break;
+    case 'c-slot': c.slot = Number(b.dataset.i); ev('hc_call_slot_pick', { slot: slotLabel(c.slot) }); break;
+    case 'c-confirmbook': c.booked = slotLabel(c.slot); c.step = 'booked'; ev('hc_call_booked', { slot: c.booked }); break;
+    case 'c-email': c.step = 'email'; ev('hc_email_instead_click'); break;
+    case 'c-emailsend': c.reachSent = true; c.step = 'emailed'; ev('hc_reachout_requested', { surface: 'cancel', note_chars: c.note.length }); break;
+    case 'c-confirm': c.cancelled = true; c.step = 'done'; ev('cancel_confirm', { likelihood: c.likelihood, booked: !!c.booked, reach: c.reachSent }); break;
+    // project 1
+    case 'p1-ask': p.requested = true; ev('hc_review_requested', { surface: 'project1', note_chars: p.note.length, remaining: 1 }); break;
+    case 'p1-edit': p.requested = false; break;
+    case 'p1-next': p.modal = true; ev('substep_submit', { substep: 'P1.S1.3', review_requested: p.requested }); break;
+    case 'p1-close': p.modal = false; break;
+    // portfolio
+    case 'pf-open': f.open = true; ev(f.requested ? 'hc_review_status_open' : 'hc_review_fab_click', { surface: 'portfolio' }); break;
+    case 'pf-close': f.open = false; break;
+    case 'pf-ask': f.requested = true; ev('hc_review_requested', { surface: 'portfolio', note_chars: 0 }); break;
+    // completion
+    case 'd-open': d.modal = true; d.faq = false; ev('hc_help_cta_click'); break;
+    case 'd-close': d.modal = false; ev('hc_help_dismiss', { choice: d.choice || null }); break;
+    case 'd-join': d.joined = true; d.modal = false; d.thanks = true; ev('hc_help_joined', { choice: d.choice }); break;
+    case 'd-thanks-close': d.thanks = false; break;
+    case 'd-undo': d.joined = false; d.choice = ''; ev('hc_help_withdrawn'); break;
+    case 'd-faq': d.faq = true; ev('hc_help_faq_open'); break;
+    case 'd-faq-close': d.faq = false; break;
+    case 'd-faq-help': d.faq = false; d.modal = true; ev('hc_help_cta_click', { from: 'faq' }); break;
+    // pick help
+    case 'pk-open': S.pick.open = true; ev('hc_pick_open', { edit: S.pick.sent }); break;
+    case 'pk-close': S.pick.open = false; ev('hc_pick_close', { goal: S.pick.goal || null }); break;
+    case 'pk-dismiss': S.pick.dismissed = true; ev('hc_pick_dismiss'); break;
+    case 'pk-goal': S.pick.goal = b.dataset.v; ev('hc_pick_goal', { goal: b.dataset.v }); break;
+    case 'pk-between': { const v = b.dataset.v, arr = S.pick.between; const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); ev('hc_pick_between', { n: arr.length }); break; }
+    case 'pk-ask': S.pick.sent = true; S.pick.open = false; ev('hc_pick_requested', { goal: S.pick.goal, between: S.pick.between.length, note_chars: S.pick.note.length }); break;
+    case 'pk-enroll': ev('enroll_click', { arm, asked: S.pick.sent }); break;
+    // inactivity
+    case 'in-stuck': S.inact.answer = 'stuck'; S.inact.email = false; ev('hc_checkin_answer', { answer: 'stuck' }); break;
+    case 'in-busy': S.inact.answer = 'busy'; S.inact.email = false; ev('hc_checkin_answer', { answer: 'busy' }); ev('hc_checkin_snooze', { days: 14 }); break;
+    case 'in-send': S.inact.sent = true; ev('hc_checkin_reachout_requested', { chars: S.inact.note.length }); break;
+    case 'in-edit': S.inact.sent = false; break;
+    case 'in-undo': S.inact.answer = S.inact.answer === 'busy' ? 'stuck' : ''; ev('hc_checkin_answer_change', { to: S.inact.answer || 'none' }); break;
+    case 'in-dismiss': S.inact.dismissed = true; ev('hc_checkin_dismiss'); break;
+    case 'in-email': S.inact.email = true; ev('email_preview_open'); break;
+    case 'in-close': S.inact.email = false; break;
+    case 'in-resume': ev('substep_resume_click', { from: S.inact.answer ? 'checkin_' + S.inact.answer : 'dashboard', arm }); break;
+  }
+  render();
+});
+setFlow(flow);
+})();
+</script>
+
+</body></html>
