@@ -228,7 +228,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .person .b{font-size:14px;line-height:20px;color:#1c1b1b}
 .person .meta{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
 .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.slot{border:1px solid var(--x-outline-subtle);border-radius:12px;padding:10px 8px;background:#fff;cursor:pointer;font:inherit;text-align:center;line-height:18px}
+.slot{border:1px solid var(--x-outline-subtle);border-radius:12px;padding:10px 8px;background:#fff;cursor:pointer;font:inherit;text-align:center;line-height:18px;color:#1c1b1b}
 .slot .d{font-size:12px;color:#484646}
 .slot .t{font-size:15px;font-weight:600}
 .slot.on{border:2px solid #1c1b1b}
@@ -323,7 +323,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .pf{flex-direction:column}
   .pf .pfmain{display:none}
   .rail{width:100%;border-right:0;padding:20px 16px 100px}
-  .pfmode{display:inline-flex}
+  .pfmode{display:inline-flex;margin:0}
   .pfbanner.phone{display:flex}
 }
 .pfbanner.phone{display:none}
@@ -432,6 +432,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .queued .a{font-size:17px;font-weight:600;line-height:22px}
 .queued .b{font-size:14px;color:#484646;line-height:20px}
 .queued .datebox{margin-top:10px}
+.queued .x-link{margin-top:12px;font-size:15px;font-weight:500;text-decoration:none}
+.queued .x-link.cancel{color:#ba1a1a}
 .dots-div{text-align:center;color:#484646;letter-spacing:4px;font-size:18px;line-height:14px;position:relative}
 .dots-div::after{content:"";display:block;width:64px;height:4px;border-radius:2px;background:#f0e6ec;margin:6px auto 0}
 .dash-div{border-top:1px dashed var(--x-divider)}
@@ -457,10 +459,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .slot{background:var(--x-surface);border-radius:12px;padding:14px 8px;line-height:22px}
 .slot .d{font-size:14px;color:#1c1b1b;font-weight:500}
 .slot .d span{color:#484646;font-weight:400}
-.slot .t{font-size:15px;font-weight:500}
+.slot .t{font-size:15px;font-weight:500;color:#1c1b1b}
 .slot.on{border:2px solid #2853d2;background:#dce1ff;padding:13px 7px}
 .hr .top{align-items:center}
 .congrats{background:#fff;border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.side .congrats{margin:0}
+.side .checkin{margin:0;flex-wrap:wrap}
+.side .checkin .av{order:0}
+.side .checkin .xbtn{order:1;margin-left:auto}
+.side .checkin .tx{order:2;flex-basis:100%}
+.side .checkin .acts .x-pill{flex:1 1 45%;justify-content:center}
 .congrats .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .congrats h2{margin:0;font-size:20px;font-weight:600}
 .congrats p{margin:0;font-size:16px;line-height:22px}
@@ -485,7 +493,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .dim{display:block;position:fixed;inset:0;background:rgba(28,27,27,.45);z-index:29;backdrop-filter:blur(3px);border:0;padding:0}
   .fab{right:16px}
   .fab.up{bottom:150px}
-  .fab.pf-fab{bottom:14px}
+  .fab.pf-fab{bottom:8px}
   .peers .acts .x-pill.blue{flex:1 1 auto}
 }
 </style>
@@ -557,7 +565,7 @@ let device = 'D';
 const log = [];
 const fresh = () => ({
   trial: { stall: false, sheet: null, msgs: [], sent: false, dismissed: false },
-  cancel: { step: 'account', reason: '', other: '', note: '', slot: null, likelihood: '', booked: null, cancelled: false, reachSent: false },
+  cancel: { step: 'account', reason: '', other: '', note: '', slot: null, likelihood: '', booked: null, cancelled: false, reachSent: false, callCancelled: false, prevBooked: null, prevSlot: null },
   project1: { url: '', note: '', requested: false, modal: false, showNoteWarn: false },
   portfolio: { note: '', requested: false, open: false },
   completion: { modal: false, choice: '', joined: false, thanks: false, faq: false },
@@ -764,7 +772,8 @@ function cancelDialog() {
   }
   if (c.step === 'done') {
     const follow = c.booked
-      ? `<div class="queued">${avatar('S', 48, true)}<div class="a">Satya will still reach out to you</div><div class="b">If you end up changing your mind, you can pick up where you left off with nothing lost.</div>${datebox(c.slot)}</div>`
+      ? `<div class="queued">${avatar('S', 48, true)}<div class="a">Satya will still reach out to you</div><div class="b">If you end up changing your mind, you can pick up where you left off with nothing lost.</div>${datebox(c.slot)}<button class="x-link cancel" data-a="c-cancelcall">Cancel meeting</button></div>`
+      : c.callCancelled ? `<div class="queued fade" role="status">${avatar('S', 48, false)}<div class="a">Your call with Satya is cancelled</div><div class="b">No problem. If you want to talk later, you can book a time from your account page.</div><button class="x-link" data-a="c-undocancelcall">Keep the call after all</button></div>`
       : c.reachSent ? `<div class="queued">${avatar('S', 48, true)}<div class="a">Satya will still reach out to you</div><div class="b">She has your note and emails you by Tuesday, Nov. 11. If you change your mind, you pick up where you left off with nothing lost.</div></div>` : '';
     return wrap(`${hd('Subscription updated', ico('ok', I.check))}
       <p class="dp" style="color:#484646">Your membership is active until <b style="color:#1c1b1b">Dec 14, 2026</b>. <b style="color:#1c1b1b">You can re-subscribe anytime</b> to continue your journey with Extern.</p>
@@ -892,13 +901,13 @@ function completion() {
       <div class="hero-card"><h1>AI Consumer Insights and Market Intelligence Externship</h1><span class="logo">HP Tech<br>Ventures</span></div>
       <div class="facts"><div class="fact">${avatar('S', 40)}<div><b>Satya</b><span>Program manager</span></div></div><div class="fact"><span class="ic">${I.live}</span><div><b>Nov 13, 2026</b><span>Live sessions start</span></div></div><div class="fact"><span class="ic">${I.cal}</span><div><b>4 Weeks</b><span>Program duration</span></div></div></div>
       <div class="tabs2"><span class="on">Projects</span><span>Live Sessions</span><span>Recordings</span></div>
-      ${congrats}
+      ${device === 'P' ? congrats : ''}
       <p style="font-size:17px;margin:0 0 16px">Your space to view and complete the projects for this program.</p>
       <div class="proj"><span class="num">⌾</span><span class="a">Project 0: Orientation</span>${I.chevD}</div>
       <div class="proj"><span class="num">1</span><span class="a">Project 1: Know How Business Processes Impact Customer Experience</span>${I.chevD}</div>
     </div>
     <div class="side">
-      <div class="tracker"><div><span class="chip ok">Completed</span>${d.joined ? ` <span class="chip info">Cohort helper</span>` : ''}</div><div class="a">Congratulations, you did it 👏</div><div class="b">Every required module is complete. Your certificate and portfolio entry are ready.</div><div class="bar2"></div><div class="legend"><span>● Complete</span><span>100% Complete</span></div></div>
+      <div class="tracker"><div><span class="chip ok">Completed</span>${d.joined ? ` <span class="chip info">Cohort helper</span>` : ''}</div><div class="a">Congratulations, you did it 👏</div><div class="b">Every required module is complete. Your certificate and portfolio entry are ready.</div><div class="bar2"></div><div class="legend"><span>● Complete</span><span>100% Complete</span></div></div>${device === 'D' ? congrats : ''}
     </div>
   </div>${modal}${thanks}${faq}</div>`;
 }
@@ -963,7 +972,7 @@ function inactivity() {
       <div class="hero-card"><h1>AI Consumer Insights and Market Intelligence Externship</h1><span class="logo">HP Tech<br>Ventures</span></div>
       <div class="facts"><div class="fact">${avatar('S', 40)}<div><b>Satya</b><span>Program Manager</span></div></div><div class="fact"><span class="ic">${I.live}</span><div><b>Nov 13, 2026</b><span>Next live session</span></div></div><div class="fact"><span class="ic">${I.cal}</span><div><b>4 Weeks</b><span>Program duration</span></div></div></div>
       <div class="tabs2"><span class="on">Projects</span><span>Live Sessions</span><span>Recordings</span></div>
-      ${card}
+      ${device === 'P' ? card : ''}
       <p style="font-size:17px;margin:0 0 16px">Your space to view and complete the projects for this program.</p>
       <div class="proj"><span class="num">⌾</span><span class="a">Project 0: Orientation</span>${I.chevD}</div>
       <div class="proj todo"><span class="num">1</span><span class="a">Project 1: Know How Business Processes Impact Customer Experience</span><span class="chip info">Step 1 of 4</span>${I.chevD}</div>
@@ -971,7 +980,7 @@ function inactivity() {
     </div>
     <div class="side">
       <div class="tracker"><div><span class="chip info">In progress</span></div><div class="a">Project 1, step 1 of 4</div><div class="b">Last active Nov 2. Most externs finish Project 1 in about 90 minutes.</div><div class="bar2 p25"></div><div class="legend"><span>● In progress</span><span>25% complete</span></div>
-        <div class="ready"><div class="a">Next up</div><div class="b">P1.S1.2 Sketch the current process for one customer</div><button class="x-pill dark" data-a="in-resume">Continue</button></div></div>
+        <div class="ready"><div class="a">Next up</div><div class="b">P1.S1.2 Sketch the current process for one customer</div><button class="x-pill dark" data-a="in-resume">Continue</button></div></div>${device === 'D' ? card : ''}
     </div>
   </div>${email}</div>`;
 }
@@ -1084,6 +1093,8 @@ $('#stage').addEventListener('click', e => {
     case 'c-email': c.step = 'email'; ev('hc_email_instead_click'); break;
     case 'c-emailsend': c.reachSent = true; c.step = 'emailed'; ev('hc_reachout_requested', { surface: 'cancel', note_chars: c.note.length }); break;
     case 'c-confirm': c.cancelled = true; c.step = 'done'; ev('cancel_confirm', { likelihood: c.likelihood, booked: !!c.booked, reach: c.reachSent }); break;
+    case 'c-cancelcall': c.prevBooked = c.booked; c.prevSlot = c.slot; c.booked = null; c.slot = null; c.callCancelled = true; ev('hc_call_cancelled', { slot: c.prevBooked, from: 'cancel_success' }); break;
+    case 'c-undocancelcall': c.booked = c.prevBooked; c.slot = c.prevSlot; c.callCancelled = false; ev('hc_call_cancel_undo', { slot: c.booked }); break;
     // project 1
     case 'p1-ask': p.requested = true; ev('hc_review_requested', { surface: 'project1', note_chars: p.note.length, remaining: 1 }); break;
     case 'p1-edit': p.requested = false; break;
