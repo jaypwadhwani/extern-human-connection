@@ -395,21 +395,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .gchip{border:1px solid var(--x-outline-subtle);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;line-height:18px;cursor:pointer;color:#1c1b1b;text-align:left}
 .gchip:hover{background:var(--x-gray-light)}
 .gchip.on{border-color:#1c1b1b;background:#1c1b1b;color:#fff}
-/* ---------- 7. inactivity check-in ---------- */
-.checkin{background:#dce1ff;border-radius:16px;padding:18px;display:flex;gap:16px;align-items:flex-start;margin-bottom:24px}
-.checkin .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.checkin h2{margin:0;font-size:20px;font-weight:600;line-height:26px;text-wrap:balance}
-.checkin p{margin:0;font-size:15px;line-height:22px}
-.checkin .acts{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.checkin.done{background:var(--x-green-light)}
-.proj.todo .num::after,.proj.lock .num::after{display:none}
-.proj.todo .num{border-color:var(--x-info);color:var(--x-info);font-weight:600}
-.proj.lock{opacity:.55}
-.bar2.p25{background:linear-gradient(90deg,#006e20 0 25%,var(--x-divider) 25% 100%)}
-.email .from{font-size:13px;color:#484646;margin-bottom:4px}
-.email .body p{margin:0 0 12px;font-size:15px;line-height:22px}
-.email .body .x-link{font-size:15px}
-@container stage (max-width:640px){ .checkin{flex-wrap:wrap} .checkin .av{order:0} .checkin .xbtn{order:1;margin-left:auto} .checkin .tx{order:2;flex-basis:100%} .checkin .acts .x-pill{flex:1 1 45%;justify-content:center} }
 /* ---------- Vinny round: shared pieces ---------- */
 .av.photo{background:#e5e2e1;overflow:visible}
 .av.photo img{width:100%;height:100%;border-radius:999px;object-fit:cover;display:block}
@@ -464,11 +449,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .hr .top{align-items:center}
 .congrats{background:#fff;border:1px solid var(--x-divider);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
 .side .congrats{margin:0}
-.side .checkin{margin:0;flex-wrap:wrap}
-.side .checkin .av{order:0}
-.side .checkin .xbtn{order:1;margin-left:auto}
-.side .checkin .tx{order:2;flex-basis:100%}
-.side .checkin .acts .x-pill{flex:1 1 45%;justify-content:center}
 .congrats .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .congrats h2{margin:0;font-size:20px;font-weight:600}
 .congrats p{margin:0;font-size:16px;line-height:22px}
@@ -556,7 +536,6 @@ const FLOWS = [
   { id: 'portfolio', label: '4 · Portfolio' },
   { id: 'completion', label: '5 · Completion' },
   { id: 'pick', label: '6 · Pick help' },
-  { id: 'inactivity', label: '7 · Inactivity' },
 ];
 let flow = (location.hash || '').replace('#', '');
 if (!FLOWS.some(f => f.id === flow)) flow = 'trial';
@@ -570,7 +549,6 @@ const fresh = () => ({
   portfolio: { note: '', requested: false, open: false },
   completion: { modal: false, choice: '', joined: false, thanks: false, faq: false },
   pick: { open: false, goal: '', between: [], note: '', sent: false, dismissed: false, shown: false },
-  inact: { answer: '', note: '', sent: false, email: false, dismissed: false, shown: false },
 });
 let S = fresh();
 let stallTimer = null;
@@ -951,40 +929,6 @@ function pickHelp() {
   </div>${dlg}</div>`;
 }
 
-// ---------- 7. inactivity check-in ----------
-function inactivity() {
-  const n = S.inact;
-  let card = '';
-  if (arm === 'T') {
-    if (n.sent) card = `<div class="checkin done fade" role="status">${avatar('S', 48, true)}<div class="tx"><h2>Satya has it.</h2><p>She replies by email within a day, usually with one concrete next step. Project 1 waits where you left it.</p><div class="acts"><button class="x-pill dark" data-a="in-resume">Pick up Project 1</button><button class="x-link quiet" data-a="in-edit">Edit what I wrote</button></div></div></div>`;
-    else if (n.answer === 'busy') card = `<div class="checkin done fade" role="status">${avatar('S', 48, true)}<div class="tx"><h2>Got it. No nudges for two weeks.</h2><p>Project 1 is one step in and most people finish it in about 90 minutes. It is here whenever you are.</p><div class="acts"><button class="x-pill dark" data-a="in-resume">Pick up where I left off</button><button class="x-link quiet" data-a="in-undo">Actually, I am stuck</button></div></div></div>`;
-    else if (n.answer === 'stuck') card = `<div class="checkin fade">${avatar('S', 48, true)}<div class="tx"><h2>What is in the way?</h2><p>One line is enough. Satya reads it herself and replies by email within a day.</p><label><span class="sr">What is in the way</span><textarea class="x-ta" rows="3" id="in-note" data-in="in-note" placeholder="The step you are on, what you tried, or what you are not sure about">${esc(n.note)}</textarea></label><div class="acts"><button class="x-pill blue" data-a="in-send" ${n.note.trim() ? '' : 'disabled'}>Have Satya reach out</button><button class="x-link quiet" data-a="in-undo">Back</button></div></div></div>`;
-    else if (!n.dismissed) card = `<div class="checkin fade">${avatar('S', 48, true)}<div class="tx"><h2>Stuck, or just busy?</h2><p>You have been away 9 days, Jordan. Project 1 is one step in. Either answer is fine. Satya just wants to know which, then she can help or leave you be.</p><div class="acts"><button class="x-pill blue" data-a="in-stuck">Stuck on something</button><button class="x-pill out" data-a="in-busy">Just busy</button><button class="x-link quiet" data-a="in-email">See the email that sent you here</button></div></div><button class="xbtn" aria-label="Dismiss" data-a="in-dismiss">${I.x}</button></div>`;
-  }
-  const email = n.email ? `<div class="ovl"><div class="dlg email fade" role="dialog" aria-modal="true" aria-labelledby="in-et">
-    <div class="hd"><div><div class="from">Satya at Extern · to Jordan · Nov 11, 8:02 AM</div><h2 id="in-et">Stuck, or just busy?</h2></div><button class="xbtn" aria-label="Close" data-a="in-close">${I.x}</button></div>
-    <div class="body"><p>Hi Jordan,</p><p>You started Project 1 of the HP Tech Ventures externship on Nov 2 and I have not seen you since. That is fine. I just want to know which of these it is. Then I can help, or leave you alone.</p>
-    <p><button class="x-link" data-a="in-stuck">I am stuck on something</button><br><button class="x-link" data-a="in-busy">I am just busy, check back in two weeks</button></p>
-    <p>Either one is a click. If you are stuck, tell me what is in the way and I will reply myself within a day.</p><p>Satya<br><span class="fine">Program Manager, HP Tech Ventures externship</span></p></div>
-    <p class="fine" style="margin:0">Prototype: this is the day-9 email. Either link lands on the dashboard with that answer already given.</p></div></div>` : '';
-  return `${top()}<div class="x-body"><div class="dash">
-    <div>
-      <div class="hero-card"><h1>AI Consumer Insights and Market Intelligence Externship</h1><span class="logo">HP Tech<br>Ventures</span></div>
-      <div class="facts"><div class="fact">${avatar('S', 40)}<div><b>Satya</b><span>Program Manager</span></div></div><div class="fact"><span class="ic">${I.live}</span><div><b>Nov 13, 2026</b><span>Next live session</span></div></div><div class="fact"><span class="ic">${I.cal}</span><div><b>4 Weeks</b><span>Program duration</span></div></div></div>
-      <div class="tabs2"><span class="on">Projects</span><span>Live Sessions</span><span>Recordings</span></div>
-      ${device === 'P' ? card : ''}
-      <p style="font-size:17px;margin:0 0 16px">Your space to view and complete the projects for this program.</p>
-      <div class="proj"><span class="num">⌾</span><span class="a">Project 0: Orientation</span>${I.chevD}</div>
-      <div class="proj todo"><span class="num">1</span><span class="a">Project 1: Know How Business Processes Impact Customer Experience</span><span class="chip info">Step 1 of 4</span>${I.chevD}</div>
-      <div class="proj lock"><span class="num">2</span><span class="a">Project 2: Map the Customer Journey</span>${I.lock}</div>
-    </div>
-    <div class="side">
-      <div class="tracker"><div><span class="chip info">In progress</span></div><div class="a">Project 1, step 1 of 4</div><div class="b">Last active Nov 2. Most externs finish Project 1 in about 90 minutes.</div><div class="bar2 p25"></div><div class="legend"><span>● In progress</span><span>25% complete</span></div>
-        <div class="ready"><div class="a">Next up</div><div class="b">P1.S1.2 Sketch the current process for one customer</div><button class="x-pill dark" data-a="in-resume">Continue</button></div></div>${device === 'D' ? card : ''}
-    </div>
-  </div>${email}</div>`;
-}
-
 // ---------- notes panel ----------
 const NOTES = {
   trial: { title: 'Trial wall: the moment of doubt', hyp: 'A named person offered at the trial wall gets more students to ask something than the webinar invite gets to save a spot, and asking does not lower trial starts.', test: ['Wait, or click "Skip the wait" to trigger the 45-second stall. Carlinda opens as a sheet.', 'Ask Carlinda opens the chat. Tap a question or type one, and send.', 'Minimize with the X. Carlinda stays reachable as the floating avatar.', 'Flip to Control to see the webinar strip in the same moment.'], yes: 'Asks per 100 sheets shown above the webinar\'s 1 in 28. Trials per arm not lower.' },
@@ -993,7 +937,6 @@ const NOTES = {
   portfolio: { title: 'Portfolio: the moment of self-presentation', hyp: 'Students deciding how to present themselves to recruiters want a person, not a checklist, to look at the result.', test: ['Satya sits in the floating avatar, bottom right, next to the Preview and Edit toggle on phone.', 'Tap it. One button: Ask for a review. No form.', 'The sheet becomes the queued state with the reply date. Close, and the avatar shows the check.'], yes: '1 in 20 editor visitors asks. Publish and share rates among askers above non-askers.' },
   completion: { title: 'Completion: recruiting the next humans', hyp: 'Completers will give time to the next cohort if asked at the moment they finish. This is the only surface that creates supply of humans rather than demand.', test: ['The Help your peers box sits inside the completion card. FAQ answers "what am I getting from it?"', 'Help the next cohort opens three ways to help. Pick one and Count me in.', 'A thank-you sheet confirms. The box changes to the thanked state with "I\'ve changed my mind", and Explore programs becomes primary.'], yes: '1 in 10 completers says yes. Volunteers become the humans behind the Project 1 and cancel treatments.' },
   pick: { title: 'Trial period: help choosing', hyp: 'Trialing students who have not enrolled are stuck on the choice, not the price. A named person who picks for them gets more of them into Project 1 before the trial ends.', test: ['The card sits above the catalog for a trialing account with no enrollment.', 'Click Help me pick. Choose a goal, tap the ones you are weighing, add a line.', 'Ask Carlinda. The card changes to the sent state and the catalog stays open.', 'Flip to Control for today\'s catalog.'], yes: '1 in 15 trialing catalog visitors asks. Enrollment within 48 hours among askers above non-askers. Trial-to-paid not lower.' },
-  inactivity: { title: 'Inactivity: a person reaches out first', hyp: 'A student who went quiet after starting Project 1 will tell a person whether they are stuck or busy, and the stuck ones come back when someone replies.', test: ['This is the dashboard after 9 days away. The email that sent them here is behind the link.', 'Click Stuck on something, write one line, and have Satya reach out.', 'Or click Just busy. The card snoozes for two weeks.', 'Either way the dashboard carries the answer. Flip to Control for today\'s return visit.'], yes: '1 in 5 returning inactive students answers. Stuck notes name a real blocker. Week-2 activity among answerers above control.' },
 };
 function renderNotes() {
   const n = NOTES[flow];
@@ -1004,7 +947,7 @@ function renderNotes() {
 }
 
 // ---------- render + actions ----------
-const RENDER = { trial: trialWall, cancel: account, project1: project1, portfolio: portfolio, completion: completion, pick: pickHelp, inactivity: inactivity };
+const RENDER = { trial: trialWall, cancel: account, project1: project1, portfolio: portfolio, completion: completion, pick: pickHelp };
 let hadDialog = false;
 function render(keepFocus) {
   const stage = $('#stage');
@@ -1026,7 +969,7 @@ function renderBar() {
   $('#devD').setAttribute('aria-pressed', device === 'D'); $('#devP').setAttribute('aria-pressed', device === 'P');
   $('#stage').classList.toggle('phone', device === 'P');
 }
-function setFlow(id) { flow = id; if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); clearTimeout(stallTimer); if (flow === 'trial' && !S.trial.stall) stallTimer = setTimeout(() => { if (!S.trial.stall) { S.trial.stall = true; if (arm === 'T') S.trial.sheet = 'intro'; ev(arm === 'T' ? 'hc_intro_shown' : 'hc_strip_shown', { arm, trigger: 'stall_45s' }); render(); } }, 45000); if (flow === 'pick' && arm === 'T' && !S.pick.shown) { S.pick.shown = true; ev('hc_pick_card_shown', { trigger: 'trial_no_enrollment' }); } if (flow === 'inactivity' && arm === 'T' && !S.inact.shown) { S.inact.shown = true; ev('hc_checkin_shown', { trigger: 'inactive_9d', via: 'email_click' }); } renderBar(); render(); }
+function setFlow(id) { flow = id; if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); clearTimeout(stallTimer); if (flow === 'trial' && !S.trial.stall) stallTimer = setTimeout(() => { if (!S.trial.stall) { S.trial.stall = true; if (arm === 'T') S.trial.sheet = 'intro'; ev(arm === 'T' ? 'hc_intro_shown' : 'hc_strip_shown', { arm, trigger: 'stall_45s' }); render(); } }, 45000); if (flow === 'pick' && arm === 'T' && !S.pick.shown) { S.pick.shown = true; ev('hc_pick_card_shown', { trigger: 'trial_no_enrollment' }); } renderBar(); render(); }
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-flow]'); if (b) setFlow(b.dataset.flow); });
 $('#armC').onclick = () => { arm = 'C'; renderBar(); render(); };
 $('#armT').onclick = () => { arm = 'T'; renderBar(); render(); };
@@ -1035,8 +978,8 @@ $('#devP').onclick = () => { device = 'P'; renderBar(); render(); };
 $('#reset').onclick = () => { S = fresh(); log.length = 0; setFlow(flow); };
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  const c = S.cancel, p = S.project1, d = S.completion, s = S.trial, k = S.pick, n = S.inact; let hit = true;
-  if (s.sheet) s.sheet = null; else if (c.step !== 'account') c.step = 'account'; else if (p.modal) p.modal = false; else if (d.modal) d.modal = false; else if (d.thanks) d.thanks = false; else if (d.faq) d.faq = false; else if (S.portfolio.open) S.portfolio.open = false; else if (k.open) k.open = false; else if (n.email) n.email = false; else hit = false;
+  const c = S.cancel, p = S.project1, d = S.completion, s = S.trial, k = S.pick; let hit = true;
+  if (s.sheet) s.sheet = null; else if (c.step !== 'account') c.step = 'account'; else if (p.modal) p.modal = false; else if (d.modal) d.modal = false; else if (d.thanks) d.thanks = false; else if (d.faq) d.faq = false; else if (S.portfolio.open) S.portfolio.open = false; else if (k.open) k.open = false; else hit = false;
   if (hit) { ev('dialog_dismiss', { via: 'escape' }); render(); }
 });
 window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (FLOWS.some(f => f.id === h) && h !== flow) setFlow(h); });
@@ -1056,7 +999,6 @@ $('#stage').addEventListener('input', e => {
     case 'pf-note': f.note = v; if (v.length === 1) ev('hc_review_note_started', { surface: 'portfolio' }); break;
     case 'd-choice': d.choice = v; ev('hc_help_option', { choice: v }); rerender(); break;
     case 'pk-note': S.pick.note = v; if (v.length === 1) ev('hc_pick_note_started'); break;
-    case 'in-note': { const was = S.inact.note.trim().length > 0; S.inact.note = v; if (v.length === 1) ev('hc_checkin_note_started'); if (was !== (v.trim().length > 0)) rerender(); break; }
   }
 });
 $('#stage').addEventListener('submit', e => {
@@ -1121,16 +1063,6 @@ $('#stage').addEventListener('click', e => {
     case 'pk-between': { const v = b.dataset.v, arr = S.pick.between; const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); ev('hc_pick_between', { n: arr.length }); break; }
     case 'pk-ask': S.pick.sent = true; S.pick.open = false; ev('hc_pick_requested', { goal: S.pick.goal, between: S.pick.between.length, note_chars: S.pick.note.length }); break;
     case 'pk-enroll': ev('enroll_click', { arm, asked: S.pick.sent }); break;
-    // inactivity
-    case 'in-stuck': S.inact.answer = 'stuck'; S.inact.email = false; ev('hc_checkin_answer', { answer: 'stuck' }); break;
-    case 'in-busy': S.inact.answer = 'busy'; S.inact.email = false; ev('hc_checkin_answer', { answer: 'busy' }); ev('hc_checkin_snooze', { days: 14 }); break;
-    case 'in-send': S.inact.sent = true; ev('hc_checkin_reachout_requested', { chars: S.inact.note.length }); break;
-    case 'in-edit': S.inact.sent = false; break;
-    case 'in-undo': S.inact.answer = S.inact.answer === 'busy' ? 'stuck' : ''; ev('hc_checkin_answer_change', { to: S.inact.answer || 'none' }); break;
-    case 'in-dismiss': S.inact.dismissed = true; ev('hc_checkin_dismiss'); break;
-    case 'in-email': S.inact.email = true; ev('email_preview_open'); break;
-    case 'in-close': S.inact.email = false; break;
-    case 'in-resume': ev('substep_resume_click', { from: S.inact.answer ? 'checkin_' + S.inact.answer : 'dashboard', arm }); break;
   }
   render();
 });
